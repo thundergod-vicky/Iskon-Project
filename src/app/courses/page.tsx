@@ -157,7 +157,7 @@ const coursesData: Course[] = [
 ];
 
 // Unique categories for filtering
-const categories = [...new Set(coursesData.map(course => course.category))];
+const categories = Array.from(new Set(coursesData.map(course => course.category)));
 const levels = ['Beginner', 'Intermediate', 'Advanced'];
 
 export default function CoursesPage() {
