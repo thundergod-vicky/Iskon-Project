@@ -16,6 +16,8 @@ interface ConversationMessage {
     content: string;
 }
 
+
+
 const QUICK_REPLIES = [
     { label: '🕐 Temple Hours', message: 'What are the temple timings?' },
     { label: '🎉 Festivals', message: 'Tell me about upcoming festivals' },
