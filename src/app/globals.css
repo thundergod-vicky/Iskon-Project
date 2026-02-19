@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-iskcon-orange text-white rounded-md hover:bg-iskcon-orange/90 transition-colors text-center text-base sm:text-lg focus:ring-2 focus:ring-iskcon-orange focus:ring-offset-2 active:transform active:scale-95;
+  }
+  
+  .btn-secondary {
+    @apply px-4 py-2 bg-white text-iskcon-orange border border-iskcon-orange rounded-md hover:bg-gray-50 transition-colors text-center text-base sm:text-lg focus:ring-2 focus:ring-iskcon-orange focus:ring-offset-2 active:transform active:scale-95;
+  }
+
+  .nav-link {
+    @apply px-3 py-2 rounded-md hover:bg-iskcon-orange/10 hover:text-iskcon-orange cursor-pointer transition-colors;
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden;
+  }
+
+  .section-title {
+    @apply text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-800 mb-8;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}
