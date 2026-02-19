@@ -1,4 +1,3 @@
-cat > netlify.toml << 'EOF'
 [build]
   command = "npm run build"
   publish = ".next"
@@ -8,4 +7,3 @@ cat > netlify.toml << 'EOF'
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-EOF
