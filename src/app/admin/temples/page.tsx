@@ -44,29 +44,25 @@ const sampleTemples = [
   }
 ];
 
+import { useAuth } from '@/context/auth/AuthContext';
+
 export default function TemplesList() {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, loading: authLoading, isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [temples, setTemples] = useState(sampleTemples);
   const [filteredTemples, setFilteredTemples] = useState(sampleTemples);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    // Check if the user is logged in
-    const checkAuth = () => {
-      const authToken = localStorage.getItem('iskcon_admin_token');
-      if (!authToken) {
+    if (!authLoading) {
+      if (!isAuthenticated) {
         router.push('/admin/login');
-        return;
+      } else {
+        fetchTemples();
       }
-      
-      setIsAuthenticated(true);
-      fetchTemples();
-    };
-
-    checkAuth();
-  }, [router]);
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   const fetchTemples = async () => {
     setIsLoading(true);

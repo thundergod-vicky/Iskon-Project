@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -20,7 +20,7 @@ interface PrasadamItem {
 }
 
 // Sample data for prasadam items
-const prasadamItems: PrasadamItem[] = [
+const samplePrasadamItems: PrasadamItem[] = [
   {
     id: '1',
     name: 'Laddu',
@@ -118,9 +118,36 @@ interface CartItem extends PrasadamItem {
 
 export default function PrasadamPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [prasadamItems, setPrasadamItems] = useState<PrasadamItem[]>(samplePrasadamItems);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch items on mount
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  const fetchItems = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/prasadam');
+      if (response.ok) {
+        const data = await response.json();
+        // Only replace sample data if the DB returned actual items
+        if (Array.isArray(data) && data.length > 0) {
+          setPrasadamItems(data);
+        }
+        // else keep sample data
+      }
+    } catch (error) {
+      console.error('Failed to fetch prasadam items:', error);
+      // Keep sample data on failure
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Categories derived from the prasadam items
   const categories = Array.from(new Set(prasadamItems.map(item => item.category)));
@@ -251,7 +278,11 @@ export default function PrasadamPage() {
           </div>
 
           {/* Prasadam Items Grid */}
-          {filteredItems.length > 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center py-20">
+              <div className="w-16 h-16 border-t-4 border-iskcon-orange border-solid rounded-full animate-spin"></div>
+            </div>
+          ) : filteredItems.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {filteredItems.map(item => (
                 <motion.div

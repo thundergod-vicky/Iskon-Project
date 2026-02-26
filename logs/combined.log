@@ -6,3 +6,10 @@
 {"ip":"::1","level":"warn","message":"Login attempt for non-existent user:","timestamp":"2026-02-19T07:50:08.108Z","username":"bsouvik986@gmail.com"}
 {"ip":"::1","level":"info","message":"Successful login:","timestamp":"2026-02-19T07:50:40.862Z","username":"bsouvik986@gmail.com"}
 {"ip":"::1","level":"info","message":"Successful login:","timestamp":"2026-02-19T07:50:43.854Z","username":"bsouvik986@gmail.com"}
+{"ip":"::1","level":"warn","message":"Failed login attempt:","timestamp":"2026-02-26T22:05:33.112Z","username":"admin"}
+{"ip":"::1","level":"warn","message":"Failed login attempt:","timestamp":"2026-02-26T22:05:50.841Z","username":"admin"}
+{"ip":"::1","level":"warn","message":"Failed login attempt:","timestamp":"2026-02-26T22:07:16.216Z","username":"admin"}
+{"ip":"::1","level":"warn","message":"Failed login attempt:","timestamp":"2026-02-26T22:07:17.212Z","username":"admin"}
+{"ip":"::1","level":"warn","message":"Failed login attempt:","timestamp":"2026-02-26T22:07:47.448Z","username":"bsouvik986@gmail.com"}
+{"ip":"::1","level":"warn","message":"Failed login attempt:","timestamp":"2026-02-26T22:07:54.678Z","username":"admin"}
+{"ip":"::1","level":"info","message":"Successful login:","timestamp":"2026-02-26T22:08:40.590Z","username":"admin"}

@@ -75,30 +75,16 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fullName: formData.fullName,
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Signup failed');
-      }
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      console.log('Signup successful:', data);
+      // This would be replaced with actual signup logic
+      console.log('Signup with:', formData);
       
       // Redirect to login page after successful signup
       window.location.href = '/auth/login?registered=true';
-    } catch (err: any) {
-      setFormError(err.message || 'An error occurred while creating your account. Please try again.');
+    } catch (err) {
+      setFormError('An error occurred while creating your account. Please try again.');
     } finally {
       setLoading(false);
     }

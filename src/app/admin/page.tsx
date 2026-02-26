@@ -3,25 +3,24 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { FaUsers, FaCalendarAlt, FaBookOpen, FaImage, FaSignOutAlt, FaHome } from 'react-icons/fa';
-
+import { FaUsers, FaCalendarAlt, FaBookOpen, FaImage, FaSignOutAlt, FaHome, FaUtensils } from 'react-icons/fa';
 import { useAuth } from '@/context/auth/AuthContext';
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const { user, loading, logout } = useAuth();
+  const { user, loading, logout, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !isAuthenticated) {
       router.push('/admin/login');
     }
-  }, [user, loading, router]);
+  }, [loading, isAuthenticated, router]);
 
   const handleLogout = () => {
     logout();
   };
 
-  if (loading || !user) {
+  if (loading || !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-16 h-16 border-t-4 border-iskcon-orange border-solid rounded-full animate-spin"></div>
@@ -121,18 +120,18 @@ export default function AdminDashboard() {
             </div>
           </Link>
 
-          {/* Media Library */}
-          <Link href="/admin/media" className="block">
-            <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300 border-t-4 border-yellow-500">
-              <div className="flex items-center text-yellow-500 mb-4">
-                <FaImage className="text-3xl" />
-                <h3 className="text-xl font-bold ml-4">Media Library</h3>
+          {/* Prasadam Management */}
+          <Link href="/admin/prasadam" className="block">
+            <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300 border-t-4 border-amber-500">
+              <div className="flex items-center text-amber-500 mb-4">
+                <FaUtensils className="text-3xl" />
+                <h3 className="text-xl font-bold ml-4">Prasadam Management</h3>
               </div>
               <p className="text-gray-600">
-                Upload and manage images, videos, and audio files. Organize media content for use across the website.
+                Update the menu, prices, and availability of Krishna Prasadam items.
               </p>
               <div className="mt-4 flex justify-end">
-                <span className="text-yellow-500 hover:underline">Manage media →</span>
+                <span className="text-amber-500 hover:underline">Manage prasadam →</span>
               </div>
             </div>
           </Link>

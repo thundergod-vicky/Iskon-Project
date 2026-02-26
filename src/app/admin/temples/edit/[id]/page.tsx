@@ -63,12 +63,14 @@ const sampleTemples = [
   }
 ];
 
+import { useAuth } from '@/context/auth/AuthContext';
+
 export default function EditTemple() {
   const router = useRouter();
+  const { user, loading: authLoading, isAuthenticated } = useAuth();
   const params = useParams();
   const id = params?.id as string;
   
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -94,20 +96,14 @@ export default function EditTemple() {
   });
 
   useEffect(() => {
-    // Check if the user is logged in
-    const checkAuth = () => {
-      const authToken = localStorage.getItem('iskcon_admin_token');
-      if (!authToken) {
+    if (!authLoading) {
+      if (!isAuthenticated) {
         router.push('/admin/login');
-        return;
+      } else if (id) {
+        fetchTempleData();
       }
-      
-      setIsAuthenticated(true);
-      fetchTempleData();
-    };
-
-    checkAuth();
-  }, [id, router]);
+    }
+  }, [authLoading, isAuthenticated, id, router]);
 
   const fetchTempleData = async () => {
     setIsLoading(true);

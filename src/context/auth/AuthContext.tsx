@@ -26,34 +26,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Check if user is logged in on mount
-    const token = localStorage.getItem('iskcon_admin_token');
-    if (token) {
-      // In a real app, verify the token with the backend
-      verifyToken(token);
-    } else {
-      setLoading(false);
-    }
+    // In a real app, verify the token with the backend
+    verifyToken();
   }, []);
 
-  const verifyToken = async (token: string) => {
+  const verifyToken = async () => {
     try {
-      // In a real app, make an API call to verify the token
-      const response = await fetch('/api/auth/verify', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      // The browser will automatically send the secure cookie
+      const response = await fetch('/api/auth/verify');
 
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
       } else {
-        // Token is invalid
-        localStorage.removeItem('iskcon_admin_token');
+        // Token is invalid or expired
+        setUser(null);
       }
     } catch (error) {
       console.error('Token verification failed:', error);
-      localStorage.removeItem('iskcon_admin_token');
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -75,15 +66,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error('Invalid credentials');
       }
 
-      const data = await response.json();
-      const { token, user: userData } = data;
+      const { user: userData } = await response.json();
       
-      if (!token) {
-        throw new Error('No token received from server');
-      }
-
-      // Store token
-      localStorage.setItem('iskcon_admin_token', token);
       setUser(userData);
       
       // Redirect to admin dashboard
@@ -96,7 +80,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
     localStorage.removeItem('iskcon_admin_token');
     setUser(null);
     router.push('/admin/login');

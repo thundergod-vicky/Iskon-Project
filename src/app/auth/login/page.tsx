@@ -1,15 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaGoogle, FaFacebook, FaEye, FaEyeSlash, FaLock, FaEnvelope } from 'react-icons/fa';
 import { motion } from 'framer-motion';
-import { useAuth } from '@/context/auth/AuthContext';
 
 export default function LoginPage() {
-  const router = useRouter();
-  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -23,10 +19,14 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // Use actual login from AuthContext
-      await login(email, password);
-      // AuthContext handles the redirect, but if it doesn't:
-      router.push('/admin');
+      // Simulate login API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // This would be replaced with actual authentication logic
+      console.log('Login with:', { email, password, rememberMe });
+      
+      // Redirect to home page after successful login
+      window.location.href = '/';
     } catch (err) {
       setError('Invalid email or password. Please try again.');
     } finally {

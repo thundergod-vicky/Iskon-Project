@@ -1,5 +1,3 @@
-'use client';
-
 // Custom 404 page for Next.js App Router
 export default function NotFound() {
   // Get the current path from the browser (client-side only)

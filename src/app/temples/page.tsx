@@ -248,7 +248,9 @@ export default function TemplesPage() {
                     <span>{temple.location}, {temple.country}</span>
                   </div>
                   <p className="text-gray-600 mb-6 line-clamp-3">{temple.description}</p>
-                  <button className="btn-secondary w-full">View Details</button>
+                  <Link href={`/temples/${temple.id}`} className="w-full">
+                    <button className="btn-secondary w-full">View Details</button>
+                  </Link>
                 </div>
               </motion.div>
             ))}
@@ -288,7 +290,9 @@ export default function TemplesPage() {
                     <span>{temple.location}, {temple.country}</span>
                   </div>
                   <p className="text-gray-600 mb-6 line-clamp-3">{temple.description}</p>
-                  <button className="btn-secondary w-full">View Details</button>
+                  <Link href={`/temples/${temple.id}`} className="w-full">
+                    <button className="btn-secondary w-full">View Details</button>
+                  </Link>
                 </div>
               </motion.div>
             ))}

@@ -3,20 +3,22 @@ import { verify } from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-export const dynamic = 'force-dynamic';
-
 export async function GET(request: Request) {
   try {
-    // Get the token from the authorization header
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
+    // Get the token from cookies (Next.js handles this)
+    let token = (request as any).cookies?.get('iskcon_admin_token')?.value;
+    
+    // Fallback to authorization header
+    if (!token) {
+      token = request.headers.get('authorization')?.split(' ')[1];
+    }
+
+    if (!token) {
       return new NextResponse(
         JSON.stringify({ message: 'No token provided' }),
         { status: 401 }
       );
     }
-
-    const token = authHeader.split(' ')[1];
     
     // Verify the token
     const decoded = verify(token, JWT_SECRET);

@@ -19,9 +19,11 @@ interface TempleForm {
   scheduleClasses: string;
 }
 
+import { useAuth } from '@/context/auth/AuthContext';
+
 export default function AddTemple() {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, loading: authLoading, isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<TempleForm>({
@@ -40,20 +42,14 @@ export default function AddTemple() {
   const [errors, setErrors] = useState<Partial<TempleForm>>({});
 
   useEffect(() => {
-    // Check if the user is logged in
-    const checkAuth = () => {
-      const authToken = localStorage.getItem('iskcon_admin_token');
-      if (!authToken) {
+    if (!authLoading) {
+      if (!isAuthenticated) {
         router.push('/admin/login');
-        return;
+      } else {
+        setIsLoading(false);
       }
-      
-      setIsAuthenticated(true);
-      setIsLoading(false);
-    };
-
-    checkAuth();
-  }, [router]);
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   const validateForm = () => {
     const newErrors: Partial<TempleForm> = {};

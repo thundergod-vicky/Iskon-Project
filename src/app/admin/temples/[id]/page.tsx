@@ -95,54 +95,50 @@ const sampleTemples: Temple[] = [
   }
 ];
 
+import { useAuth } from '@/context/auth/AuthContext';
+
 export default function TempleDetail() {
   const router = useRouter();
   const params = useParams();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, loading: authLoading, isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [temple, setTemple] = useState<Temple | null>(null);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    // Check if the user is logged in
-    const checkAuth = () => {
-      const authToken = localStorage.getItem('iskcon_admin_token');
-      if (!authToken) {
-        router.push('/admin/login');
+  const loadTempleData = () => {
+    try {
+      // In a real app, this would be an API call to fetch temple data
+      if (!params || !params.id) {
+        setError('Temple ID not found');
+        setIsLoading(false);
         return;
       }
       
-      setIsAuthenticated(true);
-      loadTempleData();
-    };
-
-    const loadTempleData = () => {
-      try {
-        // In a real app, this would be an API call to fetch temple data
-        if (!params || !params.id) {
-          setError('Temple ID not found');
-          setIsLoading(false);
-          return;
-        }
-        
-        const templeId = params.id.toString();
-        const foundTemple = sampleTemples.find(t => t.id === templeId);
-        
-        if (foundTemple) {
-          setTemple(foundTemple);
-        } else {
-          setError('Temple not found');
-        }
-      } catch (error) {
-        console.error('Error loading temple data:', error);
-        setError('Failed to load temple data');
-      } finally {
-        setIsLoading(false);
+      const templeId = params.id.toString();
+      const foundTemple = sampleTemples.find(t => t.id === templeId);
+      
+      if (foundTemple) {
+        setTemple(foundTemple);
+      } else {
+        setError('Temple not found');
       }
-    };
+    } catch (error) {
+      console.error('Error loading temple data:', error);
+      setError('Failed to load temple data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    checkAuth();
-  }, [params, router]);
+  useEffect(() => {
+    if (!authLoading) {
+      if (!isAuthenticated) {
+        router.push('/admin/login');
+      } else {
+        loadTempleData();
+      }
+    }
+  }, [authLoading, isAuthenticated, params, router]);
 
   if (isLoading) {
     return (

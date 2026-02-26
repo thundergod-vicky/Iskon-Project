@@ -19,7 +19,7 @@ export default function Footer() {
     {
       title: 'Resources',
       links: [
-        { name: 'Bhagavad Gita', href: '/resources/bhagavad-gita' },
+        { name: 'Bhagavad Gita', href: '/resources/books/bhagavad-gita' },
         { name: 'Vedic Literature', href: '/resources/vedic-literature' },
         { name: 'Online Books', href: '/resources/books' },
         { name: 'Podcasts', href: '/resources/podcasts' },
