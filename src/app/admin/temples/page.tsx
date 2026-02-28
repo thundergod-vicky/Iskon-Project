@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FaPlus, FaEdit, FaEye, FaSearch } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaEye, FaSearch, FaArrowLeft } from 'react-icons/fa';
 
 // Sample temple data - in a real application, this would come from an API
 const sampleTemples = [
@@ -106,31 +106,33 @@ export default function TemplesList() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Admin Header */}
-      <header className="bg-white shadow-md">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-800">Manage Temples</h1>
+    <div className="min-h-screen bg-gray-100 p-4 pt-24 md:p-8 md:pt-32">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+          <div className="flex items-center">
+            <Link href="/admin" className="mr-4 p-2 bg-white rounded-full shadow hover:bg-gray-50 text-gray-600">
+              <FaArrowLeft />
+            </Link>
+            <h1 className="text-3xl font-bold text-gray-800">Manage Temples</h1>
+          </div>
           <Link href="/admin/temples/add">
-            <button className="px-4 py-2 bg-iskcon-orange text-white rounded-md hover:bg-iskcon-orange/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-iskcon-orange flex items-center">
+            <button className="flex items-center px-6 py-3 bg-iskcon-orange text-white rounded-lg shadow hover:bg-iskcon-orange/90 transition">
               <FaPlus className="mr-2" /> Add New Temple
             </button>
           </Link>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        {/* Main Content */}
+        <div className="bg-white rounded-xl shadow overflow-hidden">
           {/* Search Bar */}
-          <div className="p-4 border-b border-gray-200">
-            <div className="relative">
+          <div className="p-4 border-b border-gray-200 bg-gray-50">
+            <div className="relative max-w-lg">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <FaSearch className="h-5 w-5 text-gray-400" />
               </div>
               <input
                 type="text"
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-iskcon-orange focus:border-iskcon-orange"
+                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-iskcon-orange focus:border-iskcon-orange sm:text-sm transition-shadow"
                 placeholder="Search temples by name, location, or country..."
                 value={searchTerm}
                 onChange={handleSearch}
@@ -143,16 +145,16 @@ export default function TemplesList() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-4 text-left font-semibold text-gray-700">
                     Temple
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-4 text-left font-semibold text-gray-700">
                     Location
                   </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-4 text-left font-semibold text-gray-700">
                     Country
                   </th>
-                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-4 text-right font-semibold text-gray-700">
                     Actions
                   </th>
                 </tr>
@@ -160,37 +162,42 @@ export default function TemplesList() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredTemples.length > 0 ? (
                   filteredTemples.map((temple) => (
-                    <tr key={temple.id} className="hover:bg-gray-50">
+                    <tr key={temple.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="h-10 w-10 flex-shrink-0">
+                          <div className="h-12 w-12 flex-shrink-0 bg-gray-200 rounded-lg overflow-hidden border border-gray-100">
                             <img
-                              className="h-10 w-10 rounded-full object-cover"
+                              className="h-full w-full object-cover"
                               src={temple.image || '/images/temple-placeholder.jpg'}
                               alt={temple.name}
                             />
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{temple.name}</div>
+                            <div className="text-sm font-bold text-gray-900">{temple.name}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{temple.location}</div>
+                        <div className="text-sm text-gray-700 flex items-center">
+                          <svg className="w-4 h-4 mr-1 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"></path></svg>
+                          {temple.location}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{temple.country}</div>
+                        <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-100">
+                          {temple.country}
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end space-x-2">
+                        <div className="flex justify-end space-x-3">
                           <Link href={`/temples/${temple.id}`} target="_blank">
-                            <button className="text-blue-600 hover:text-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 p-1">
-                              <FaEye />
+                            <button className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-2 rounded-full transition-colors" title="View details">
+                              <FaEye size={18} />
                             </button>
                           </Link>
                           <Link href={`/admin/temples/edit/${temple.id}`}>
-                            <button className="text-iskcon-orange hover:text-iskcon-orange/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-iskcon-orange p-1">
-                              <FaEdit />
+                            <button className="text-iskcon-orange hover:text-orange-700 hover:bg-orange-50 p-2 rounded-full transition-colors" title="Edit temple">
+                              <FaEdit size={18} />
                             </button>
                           </Link>
                         </div>
@@ -199,8 +206,12 @@ export default function TemplesList() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={4} className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                      No temples found matching your search criteria.
+                    <td colSpan={4} className="px-6 py-12 whitespace-nowrap text-center text-gray-500">
+                      <div className="flex justify-center mb-2">
+                        <FaSearch size={24} className="text-gray-300" />
+                      </div>
+                      <p className="text-lg">No temples found</p>
+                      <p className="text-sm text-gray-400">Try adjusting your search query</p>
                     </td>
                   </tr>
                 )}
@@ -208,21 +219,19 @@ export default function TemplesList() {
             </table>
           </div>
 
-          {/* Pagination (simplified for now) */}
+          {/* Pagination */}
           {filteredTemples.length > 0 && (
-            <div className="px-4 py-3 border-t border-gray-200 sm:px-6">
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-700">
-                  Showing <span className="font-medium">{filteredTemples.length}</span> of <span className="font-medium">{temples.length}</span> temples
-                </div>
-                <div className="flex-1 flex justify-end">
-                  <button className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                    Previous
-                  </button>
-                  <button className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                    Next
-                  </button>
-                </div>
+            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+              <div className="text-sm text-gray-600">
+                Showing <span className="font-semibold text-gray-900">{filteredTemples.length}</span> of <span className="font-semibold text-gray-900">{temples.length}</span> temples
+              </div>
+              <div className="flex space-x-2">
+                <button className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 transition-colors shadow-sm">
+                  Previous
+                </button>
+                <button className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 transition-colors shadow-sm">
+                  Next
+                </button>
               </div>
             </div>
           )}

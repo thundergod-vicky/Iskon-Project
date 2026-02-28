@@ -13,3 +13,7 @@
 {"ip":"::1","level":"warn","message":"Failed login attempt:","timestamp":"2026-02-26T22:07:47.448Z","username":"bsouvik986@gmail.com"}
 {"ip":"::1","level":"warn","message":"Failed login attempt:","timestamp":"2026-02-26T22:07:54.678Z","username":"admin"}
 {"ip":"::1","level":"info","message":"Successful login:","timestamp":"2026-02-26T22:08:40.590Z","username":"admin"}
+{"ip":"::1","level":"warn","message":"Failed login attempt:","timestamp":"2026-02-28T21:42:52.337Z","username":"bsouvik986@gmail.com"}
+{"ip":"::1","level":"warn","message":"Failed login attempt:","timestamp":"2026-02-28T21:43:01.252Z","username":"admin"}
+{"ip":"::1","level":"warn","message":"Failed login attempt:","timestamp":"2026-02-28T21:43:11.102Z","username":"admin"}
+{"ip":"::1","level":"info","message":"Successful login:","timestamp":"2026-02-28T21:43:34.471Z","username":"admin"}

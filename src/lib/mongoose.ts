@@ -18,6 +18,19 @@ if (!cached) {
 }
 
 async function connectDB() {
+  // Always create a new connection in development if the URI changed, 
+  // rather than using the cached connection from before the .env change
+  if (mongoose.connection.readyState === 1) {
+    if (mongoose.connection.db?.databaseName !== 'IskonProject') {
+      console.log('Switching database to IskonProject...');
+      await mongoose.disconnect();
+      cached.promise = null;
+      cached.conn = null;
+    } else {
+      return mongoose.connection;
+    }
+  }
+
   if (cached.conn) {
     return cached.conn;
   }

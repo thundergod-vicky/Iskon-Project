@@ -18,8 +18,20 @@ interface PrasadamItem {
   available: boolean;
 }
 
+// Sample data — same as the public Prasadam page, used when DB is unavailable
+const SAMPLE_ITEMS: PrasadamItem[] = [
+  { _id: 'sample-1', name: 'Laddu', description: 'Traditional sweet made from gram flour, sugar, and ghee, offered to Lord Krishna.', price: 5.99, image: '/images/prasadam/laddu.jpg', category: 'Sweets', rating: 4.8, isVegan: false, ingredients: ['Gram flour', 'Sugar', 'Ghee', 'Cardamom', 'Nuts'], available: true },
+  { _id: 'sample-2', name: 'Halwa', description: 'Rich semolina pudding with ghee, sugar, and dry fruits.', price: 4.99, image: '/images/prasadam/halwa.jpg', category: 'Sweets', rating: 4.6, isVegan: false, ingredients: ['Semolina', 'Sugar', 'Ghee', 'Cardamom', 'Raisins', 'Almonds'], available: true },
+  { _id: 'sample-3', name: 'Khichdi', description: 'Savory rice and lentil dish with spices, easy to digest and nutritious.', price: 7.99, image: '/images/prasadam/khichdi.jpg', category: 'Savory', rating: 4.7, isVegan: true, ingredients: ['Rice', 'Moong Dal', 'Ghee', 'Cumin', 'Turmeric', 'Ginger'], available: true },
+  { _id: 'sample-4', name: 'Pakoras', description: 'Crispy vegetable fritters made with chickpea flour and spices.', price: 6.99, image: '/images/prasadam/pakoras.jpg', category: 'Savory', rating: 4.5, isVegan: true, ingredients: ['Chickpea flour', 'Mixed vegetables', 'Spices', 'Oil'], available: true },
+  { _id: 'sample-5', name: 'Sandesh', description: 'Bengali sweet made from paneer and sugar, with delicate flavoring.', price: 8.99, image: '/images/prasadam/sandesh.jpg', category: 'Sweets', rating: 4.9, isVegan: false, ingredients: ['Paneer', 'Sugar', 'Cardamom', 'Saffron'], available: true },
+  { _id: 'sample-6', name: 'Vegetable Pulao', description: 'Fragrant rice dish with mixed vegetables and aromatic spices.', price: 9.99, image: '/images/prasadam/pulao.jpg', category: 'Savory', rating: 4.4, isVegan: true, ingredients: ['Basmati rice', 'Mixed vegetables', 'Ghee', 'Cumin', 'Cloves', 'Cinnamon'], available: true },
+  { _id: 'sample-7', name: 'Chutney', description: 'Sweet and tangy condiment made from fruits or vegetables.', price: 3.99, image: '/images/prasadam/chutney.jpg', category: 'Condiments', rating: 4.3, isVegan: true, ingredients: ['Fruits/Vegetables', 'Spices', 'Sugar', 'Vinegar'], available: true },
+  { _id: 'sample-8', name: 'Jalebi', description: 'Spiral-shaped sweet made from fermented batter, deep-fried and soaked in sugar syrup.', price: 6.49, image: '/images/prasadam/jalebi.jpg', category: 'Sweets', rating: 4.7, isVegan: true, ingredients: ['Flour', 'Yogurt', 'Sugar syrup', 'Saffron', 'Cardamom'], available: true },
+];
+
 export default function AdminPrasadamPage() {
-  const [items, setItems] = useState<PrasadamItem[]>([]);
+  const [items, setItems] = useState<PrasadamItem[]>(SAMPLE_ITEMS);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<PrasadamItem | null>(null);
@@ -44,10 +56,15 @@ export default function AdminPrasadamPage() {
       const response = await fetch('/api/prasadam');
       if (response.ok) {
         const data = await response.json();
-        setItems(data);
+        // Only use DB data if there are actual items
+        if (Array.isArray(data) && data.length > 0) {
+          setItems(data);
+        }
+        // else keep sample data
       }
     } catch (error) {
       console.error('Failed to fetch items:', error);
+      // Keep sample data on failure
     } finally {
       setIsLoading(false);
     }
@@ -124,7 +141,7 @@ export default function AdminPrasadamPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-8">
+    <div className="min-h-screen bg-gray-100 p-4 pt-24 md:p-8 md:pt-32">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <div className="flex items-center">
@@ -146,7 +163,19 @@ export default function AdminPrasadamPage() {
             <div className="w-16 h-16 border-t-4 border-iskcon-orange border-solid rounded-full animate-spin"></div>
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow overflow-hidden">
+          <>
+            {/* DB Status Banner */}
+            {items.length > 0 && items[0]._id.startsWith('sample-') && (
+              <div className="mb-4 flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-lg px-5 py-3 text-sm text-blue-700">
+                <span className="mt-0.5">ℹ️</span>
+                <div>
+                  <strong>Showing sample data</strong> — MongoDB is not connected. Items marked <span className="inline-block px-1.5 py-0.5 bg-blue-100 rounded text-blue-600 font-medium text-xs">Sample</span> are read-only.
+                  To manage items, whitelist your IP on <a href="https://cloud.mongodb.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">MongoDB Atlas</a> and refresh.
+                </div>
+              </div>
+            )}
+
+            <div className="bg-white rounded-xl shadow overflow-hidden">
             <table className="w-full text-left">
               <thead className="bg-gray-50 border-b">
                 <tr>
@@ -158,41 +187,56 @@ export default function AdminPrasadamPage() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {items.map((item) => (
-                  <tr key={item._id} className="hover:bg-gray-50 transition">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center">
-                        <div className="w-12 h-12 bg-gray-200 rounded-lg mr-4 overflow-hidden">
-                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                        </div>
-                        <div>
-                          <p className="font-bold text-gray-800">{item.name}</p>
-                          <p className="text-sm text-gray-500 truncate max-w-xs">{item.description}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">{item.category}</td>
-                    <td className="px-6 py-4 font-medium text-iskcon-orange">
-                      ₹{item.price.toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4">
-                      {item.available ? (
-                        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase tracking-wider">Available</span>
-                      ) : (
-                        <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold uppercase tracking-wider">Out of Stock</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-3">
-                        <button onClick={() => handleOpenModal(item)} className="text-blue-500 hover:text-blue-700"><FaEdit size={18} /></button>
-                        <button onClick={() => handleDelete(item._id)} className="text-red-500 hover:text-red-700"><FaTrash size={18} /></button>
-                      </div>
+                {items.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="text-center py-16 text-gray-500">
+                      No prasadam items found. Click "Add New Item" to get started.
                     </td>
                   </tr>
-                ))}
+                ) : items.map((item) => {
+                  const isSample = item._id.startsWith('sample-');
+                  return (
+                    <tr key={item._id} className={`hover:bg-gray-50 transition ${isSample ? 'opacity-80' : ''}`}>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center">
+                          <div className="w-12 h-12 bg-gray-200 rounded-lg mr-4 overflow-hidden">
+                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/images/placeholder.jpg'; }} />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-bold text-gray-800">{item.name}</p>
+                              {isSample && <span className="px-2 py-0.5 text-xs bg-blue-100 text-blue-600 rounded-full font-medium">Sample</span>}
+                            </div>
+                            <p className="text-sm text-gray-500 truncate max-w-xs">{item.description}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">{item.category}</td>
+                      <td className="px-6 py-4 font-medium text-iskcon-orange">₹{item.price.toFixed(2)}</td>
+                      <td className="px-6 py-4">
+                        {item.available ? (
+                          <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase tracking-wider">Available</span>
+                        ) : (
+                          <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold uppercase tracking-wider">Out of Stock</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        {isSample ? (
+                          <span className="text-xs text-gray-400 italic">Connect DB to manage</span>
+                        ) : (
+                          <div className="flex items-center space-x-3">
+                            <button onClick={() => handleOpenModal(item)} className="text-blue-500 hover:text-blue-700"><FaEdit size={18} /></button>
+                            <button onClick={() => handleDelete(item._id)} className="text-red-500 hover:text-red-700"><FaTrash size={18} /></button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
-          </div>
+            </div>
+          </>
         )}
       </div>
 
