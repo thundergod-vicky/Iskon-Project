@@ -1,16 +1,21 @@
+export const runtime = 'nodejs';
 import { NextResponse } from 'next/server';
 import { verify } from 'jsonwebtoken';
+import { cookies } from 'next/headers';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function GET(request: Request) {
   try {
-    // Get the token from cookies (Next.js handles this)
-    let token = (request as any).cookies?.get('iskcon_admin_token')?.value;
+    // Get the token securely using Next.js 14 headers API
+    const cookieStore = cookies();
+    const tokenCookie = cookieStore.get('iskcon_admin_token');
+    let token = tokenCookie?.value;
     
     // Fallback to authorization header
     if (!token) {
-      token = request.headers.get('authorization')?.split(' ')[1];
+      const authHeader = request.headers.get('authorization');
+      token = authHeader?.split(' ')[1];
     }
 
     if (!token) {
