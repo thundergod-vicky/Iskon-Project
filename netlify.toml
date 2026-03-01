@@ -6,9 +6,9 @@
   NODE_VERSION = "20"
   NEXT_TELEMETRY_DISABLED = "1"
 
-# Temporarily disable the plugin
-# [[plugins]]
-#   package = "@netlify/plugin-nextjs"
+# The Next.js plugin is strictly required for API routes to work
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 [[redirects]]
   from = "/pages/*"
