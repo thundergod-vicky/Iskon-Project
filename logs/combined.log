@@ -17,3 +17,5 @@
 {"ip":"::1","level":"warn","message":"Failed login attempt:","timestamp":"2026-02-28T21:43:01.252Z","username":"admin"}
 {"ip":"::1","level":"warn","message":"Failed login attempt:","timestamp":"2026-02-28T21:43:11.102Z","username":"admin"}
 {"ip":"::1","level":"info","message":"Successful login:","timestamp":"2026-02-28T21:43:34.471Z","username":"admin"}
+{"ip":"::1","level":"info","message":"Successful login:","timestamp":"2026-03-01T08:57:45.684Z","username":"admin"}
+{"ip":"::1","level":"info","message":"Successful login:","timestamp":"2026-03-01T08:59:26.962Z","username":"admin"}

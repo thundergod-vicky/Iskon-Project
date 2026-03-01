@@ -1,36 +1,26 @@
 import { NextResponse } from 'next/server';
 import { sign } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { check, validationResult } from 'express-validator';
+import mongoose from 'mongoose';
+import User from '@/models/User';
 import logger from '@/utils/logger';
-import { twoFactorAuth } from '@/utils/twoFactorAuth';
 import { ipBlocker } from '@/middleware/ipBlock';
 import Tokens from 'csrf';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const CSRF_SECRET = process.env.CSRF_SECRET || 'your-csrf-secret-key';
 
-// In production, these would be stored in a database with hashed passwords
-const ADMIN_CREDENTIALS = {
-  id: '1',
-  username: process.env.ADMIN_USERNAME || 'admin',
-  // This is the hashed version of the default password
-  hashedPassword: bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'iskcon123', 10),
-  twoFactorEnabled: false
-};
-
 const tokens = new Tokens();
 
-// Validation rules
-const loginValidation = [
-  check('username').trim().notEmpty().withMessage('Username is required'),
-  check('password').trim().notEmpty().withMessage('Password is required'),
-  check('totpToken').optional().isLength({ min: 6, max: 6 }).withMessage('Invalid 2FA token')
-];
+// Helper to ensure DB is connected
+async function connectDB() {
+  if (mongoose.connection.readyState >= 1) return;
+  await mongoose.connect(process.env.MONGODB_URI as string);
+}
 
 export async function POST(request: Request) {
   try {
-    const { username, password, totpToken } = await request.json();
+    const { username, password } = await request.json();
     const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
 
     // Check if IP is blocked
@@ -42,51 +32,62 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate input
-    await Promise.all(loginValidation.map(validation => validation.run({ body: { username, password, totpToken } } as any)));
-    const errors = validationResult({ body: { username, password, totpToken } } as any);
-    
-    if (!errors.isEmpty()) {
-      logger.warn('Login validation failed:', { ip: clientIp, errors: errors.array() });
+    if (!username || !password) {
       return new NextResponse(
-        JSON.stringify({ errors: errors.array() }),
+        JSON.stringify({ message: 'Username and password required' }),
         { status: 400 }
       );
     }
 
-    // Verify credentials
-    const isPasswordMatch = await bcrypt.compare(password, ADMIN_CREDENTIALS.hashedPassword);
+    let isAuthenticated = false;
+    let authUser = null;
 
-    if (username === ADMIN_CREDENTIALS.username && isPasswordMatch) {
+    // 1. Try MongoDB Database Login First (treat username input as email)
+    try {
+      await connectDB();
+      const dbUser = await User.findOne({ email: username.toLowerCase() }).select('+password');
       
-      // Check 2FA if enabled
-      if (ADMIN_CREDENTIALS.twoFactorEnabled) {
-        if (!totpToken) {
-          return new NextResponse(
-            JSON.stringify({ message: '2FA token required', require2FA: true }),
-            { status: 428 }
-          );
-        }
-
-        if (!twoFactorAuth.verifyToken(ADMIN_CREDENTIALS.id, totpToken)) {
-          ipBlocker.recordSuspiciousActivity(clientIp);
-          logger.warn('Invalid 2FA token attempt:', { username, ip: clientIp });
-          return new NextResponse(
-            JSON.stringify({ message: 'Invalid 2FA token' }),
-            { status: 401 }
-          );
+      if (dbUser) {
+        const isMatch = await bcrypt.compare(password, dbUser.password);
+        if (isMatch) {
+          isAuthenticated = true;
+          authUser = {
+            id: dbUser._id.toString(),
+            username: dbUser.email,
+            role: dbUser.role
+          };
         }
       }
+    } catch (dbError) {
+      logger.error('Database connection failed during login:', dbError);
+    }
 
+    // 2. Fallback to .env.local Super Admin Credentials
+    // This reads env vars dynamically per request, fixing module caching bugs
+    if (!isAuthenticated) {
+      const superAdminUsername = process.env.ADMIN_USERNAME || 'admin';
+      const superAdminPassword = process.env.ADMIN_PASSWORD || 'iskcon123';
+      
+      if (username === superAdminUsername && password === superAdminPassword) {
+        isAuthenticated = true;
+        authUser = {
+          id: 'super-admin-env',
+          username: superAdminUsername,
+          role: 'admin'
+        };
+      }
+    }
+
+    if (isAuthenticated && authUser) {
       // Generate CSRF token
       const csrfSecret = tokens.create(CSRF_SECRET);
       
       // Create JWT token
       const token = sign(
         { 
-          sub: ADMIN_CREDENTIALS.id,
-          username,
-          role: 'admin'
+          sub: authUser.id,
+          username: authUser.username,
+          role: authUser.role
         },
         JWT_SECRET,
         { 
@@ -97,7 +98,7 @@ export async function POST(request: Request) {
 
       // Create secure response
       const response = NextResponse.json({
-        user: { id: ADMIN_CREDENTIALS.id, username, role: 'admin' },
+        user: authUser,
         csrfToken: csrfSecret,
         message: 'Login successful'
       });
