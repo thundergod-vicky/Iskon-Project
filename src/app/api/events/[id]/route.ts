@@ -2,10 +2,7 @@ import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import Event from '@/models/Event';
 
-async function connectDB() {
-  if (mongoose.connection.readyState >= 1) return;
-  await mongoose.connect(process.env.MONGODB_URI as string);
-}
+import connectDB from '@/lib/mongoose';
 
 export async function PUT(
   request: Request,

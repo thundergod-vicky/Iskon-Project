@@ -13,11 +13,7 @@ const CSRF_SECRET = process.env.CSRF_SECRET || 'your-csrf-secret-key';
 
 const tokens = new Tokens();
 
-// Helper to ensure DB is connected
-async function connectDB() {
-  if (mongoose.connection.readyState >= 1) return;
-  await mongoose.connect(process.env.MONGODB_URI as string);
-}
+import connectDB from '@/lib/mongoose';
 
 export async function POST(request: Request) {
   try {

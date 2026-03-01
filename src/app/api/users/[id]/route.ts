@@ -3,11 +3,7 @@ import mongoose from 'mongoose';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 
-// Helper to ensure DB is connected
-async function connectDB() {
-  if (mongoose.connection.readyState >= 1) return;
-  await mongoose.connect(process.env.MONGODB_URI as string);
-}
+import connectDB from '@/lib/mongoose';
 
 export async function PUT(
   request: Request,
