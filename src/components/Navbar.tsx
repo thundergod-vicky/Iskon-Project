@@ -52,6 +52,7 @@ const navigation = [
       { name: 'Books', href: '/resources/books' },
       { name: 'Audio & Podcasts', href: '/resources/audio' },
       { name: 'Videos', href: '/resources/videos' },
+      { name: 'Quotes', href: '/resources/prabhupada-quotes' },
       { name: 'Articles', href: '/resources/articles' },
       { name: 'Photo Gallery', href: '/resources/gallery' }
     ]

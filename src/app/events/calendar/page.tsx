@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,19 +21,11 @@ export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [direction, setDirection] = useState(0);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Sample events data
-  const events: Event[] = [
-    {
-      id: 1,
-      title: "Janmashtami Celebration",
-      date: "2025-08-18",
-      time: "6:00 PM - 12:00 AM",
-      location: "ISKCON Temple Main Hall",
-      description: "Join us for the celebration of Lord Krishna's appearance day with kirtan, abhishek, and feast.",
-      image: "/images/events/janmashtami-celebration.jpg",
-      category: "Festival"
-    },
+  // Sample static events (could eventually be moved to a backend 'Event' model as well)
+  const staticEvents: Event[] = [
     {
       id: 2,
       title: "Sunday Feast Program",
@@ -44,27 +36,36 @@ export default function CalendarPage() {
       image: "/images/iskcon-logo.png",
       category: "Regular"
     },
-    {
-      id: 3,
-      title: "Ratha Yatra Festival",
-      date: "2025-07-01",
-      time: "10:00 AM - 6:00 PM",
-      location: "City Center Park",
-      description: "Annual Chariot Festival featuring a procession, cultural performances, and free vegetarian feast.",
-      image: "/images/events/ratha-yatra-festival.jpg",
-      category: "Festival"
-    },
-    {
-      id: 4,
-      title: "Gaura Purnima Festival",
-      date: "2025-03-14",
-      time: "5:00 PM - 9:00 PM",
-      location: "ISKCON Temple",
-      description: "Celebrating the appearance day of Lord Chaitanya Mahaprabhu.",
-      image: "/images/events/gaura-purnima-festival.jpg",
-      category: "Festival"
-    }
   ];
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch('/api/festivals');
+        const festivals = await res.json();
+        
+        const backendFestivals = festivals.map((f: any) => ({
+          id: f._id,
+          title: f.name,
+          date: new Date(f.date).toISOString().split('T')[0],
+          time: "All Day",
+          location: f.location,
+          description: f.description,
+          image: f.image,
+          category: "Festival"
+        }));
+
+        setEvents([...staticEvents, ...backendFestivals]);
+      } catch (err) {
+        console.error('Failed to fetch calendar data:', err);
+        setEvents(staticEvents);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const categories = ['All', 'Festival', 'Regular', 'Workshop', 'Class'];
 

@@ -1,75 +1,51 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { FaCalendar, FaMapMarkerAlt, FaUsers, FaInfoCircle, FaStar } from 'react-icons/fa';
 
-const festivals = [
-  {
-    id: 1,
-    name: "Gaura Purnima",
-    date: "March 24, 2025",
-    location: "Worldwide ISKCON Temples",
-    description: "Celebration of Lord Chaitanya's appearance day, with elaborate worship, kirtan, and feasting.",
-    image: "/images/events/gaura-purnima-festival.jpg",
-    significance: [
-      "Commemorates the appearance of Sri Chaitanya Mahaprabhu",
-      "Special midnight arati and kirtan",
-      "Distribution of spiritual food prasadam",
-      "24-hour kirtan in many temples"
-    ],
-    preparations: [
-      "Fasting till moonrise",
-      "Reading about Lord Chaitanya's pastimes",
-      "Special decorations for the deities",
-      "Community feast preparation"
-    ]
-  },
-  {
-    id: 2,
-    name: "Janmashtami",
-    date: "August 15, 2025",
-    location: "All ISKCON Centers",
-    description: "The divine appearance day of Lord Krishna, celebrated with great pomp and devotion.",
-    image: "/images/events/janmashtami-celebration.jpg",
-    significance: [
-      "Marks Lord Krishna's appearance on Earth",
-      "Midnight celebration and arati",
-      "Special darshan of Krishna",
-      "Cultural programs and dramas"
-    ],
-    preparations: [
-      "Full day fasting till midnight",
-      "Temple decoration with flowers",
-      "Butter churning ceremony",
-      "Special outfit for Krishna"
-    ]
-  },
-  {
-    id: 3,
-    name: "Ratha Yatra",
-    date: "July 1, 2025",
-    location: "Major Cities Worldwide",
-    description: "The famous chariot festival where Lord Jagannatha, Baladeva, and Subhadra ride through the streets.",
-    image: "/images/events/ratha-yatra-festival.jpg",
-    significance: [
-      "Recreation of Jagannatha's Puri festival",
-      "Public procession with chariots",
-      "Mass prasadam distribution",
-      "Cultural performances"
-    ],
-    preparations: [
-      "Chariot decoration",
-      "Route planning and permissions",
-      "Prasadam preparation for thousands",
-      "Cultural program organization"
-    ]
-  }
-];
-
 export default function FestivalsPage() {
-  const [selectedFestival, setSelectedFestival] = useState(festivals[0]);
+  const [festivals, setFestivals] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedFestival, setSelectedFestival] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchFestivals = async () => {
+      try {
+        const res = await fetch('/api/festivals');
+        const data = await res.json();
+        
+        // If no festivals in DB, use some fallbacks for now or empty
+        if (data && data.length > 0) {
+          setFestivals(data);
+          setSelectedFestival(data[0]);
+        }
+      } catch (err) {
+        console.error('Failed to fetch festivals:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFestivals();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-xl font-bold text-gray-400">Loading Sacred Festivals...</div>
+      </div>
+    );
+  }
+
+  if (!selectedFestival) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-xl font-bold text-gray-400">No upcoming festivals scheduled.</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -157,7 +133,7 @@ export default function FestivalsPage() {
                   Spiritual Significance
                 </h3>
                 <ul className="space-y-3">
-                  {selectedFestival.significance.map((point, index) => (
+                  {selectedFestival.significance.map((point: string, index: number) => (
                     <li key={index} className="flex items-start">
                       <span className="text-iskcon-orange mr-2">•</span>
                       {point}
@@ -173,7 +149,7 @@ export default function FestivalsPage() {
                   Festival Preparations
                 </h3>
                 <ul className="space-y-3">
-                  {selectedFestival.preparations.map((prep, index) => (
+                  {selectedFestival.preparations.map((prep: string, index: number) => (
                     <li key={index} className="flex items-start">
                       <span className="text-iskcon-orange mr-2">•</span>
                       {prep}

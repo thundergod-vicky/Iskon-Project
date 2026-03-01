@@ -1,217 +1,190 @@
-"use client";
+'use client';
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaQuoteLeft, FaSearch, FaFilter, FaShareAlt, FaCopy, FaCheck } from 'react-icons/fa';
 
-const quotes = [
-  {
-    id: 1,
-    text: "Brahmacārī life is meant for following the rules and regulations under the guidance of the spiritual master.",
-    source: "Srimad-Bhagavatam 3.12.41, Purport"
-  },
-  {
-    id: 2,
-    text: "The basic principle of the brahmacārī's life is to have firm faith in the spiritual master. The brahmacārī is supposed to live under the care of the spiritual master and serve him with heart and soul.",
-    source: "Srimad-Bhagavatam 7.12.1, Purport"
-  },
-  {
-    id: 3,
-    text: "A brahmacārī should have complete control over his senses and should be fully engaged in the service of the Lord.",
-    source: "Bhagavad-gita As It Is, 6.14, Purport"
-  },
-  {
-    id: 4,
-    text: "The whole purpose of brahmacārī life is to become free from sexual attachment.",
-    source: "Srimad-Bhagavatam 7.12.8, Purport"
-  },
-  {
-    id: 5,
-    text: "A brahmacārī is trained to be satisfied with eating simply to keep body and soul together. He is not allowed to eat anything and everything, as he pleases.",
-    source: "Srimad-Bhagavatam 3.13.7, Purport"
-  },
-  {
-    id: 6,
-    text: "The brahmacārī system of education is especially intended for training both body and mind in spiritual values.",
-    source: "Srimad-Bhagavatam 3.21.45, Purport"
-  },
-  {
-    id: 7,
-    text: "A brahmacārī should avoid talking with women as far as possible. Of course in Krishna consciousness we don't shun women as a class, but we don't talk with them unnecessarily.",
-    source: "Perfect Questions, Perfect Answers"
-  },
-  {
-    id: 8,
-    text: "The life of a brahmacārī is meant for advancing in spiritual life and developing Krishna consciousness.",
-    source: "Lecture, Vrindavan, 1976"
-  },
-  {
-    id: 9,
-    text: "A brahmacārī is supposed to rise early in the morning and render service to the spiritual master, study Vedic literature and perform other spiritual activities.",
-    source: "Srimad-Bhagavatam 7.12.1-2, Purport"
-  },
-  {
-    id: 10,
-    text: "The brahmacārī system teaches one how to lead a life of austerities and penances in order to understand spiritual values.",
-    source: "Science of Self-Realization"
-  }
-];
+interface IQuote {
+  _id: string;
+  text: string;
+  source: string;
+  date?: string;
+  tags: string[];
+}
 
-const PrabhupadaQuotesPage = () => {
-  const [currentQuote, setCurrentQuote] = useState(0);
+export default function PrabhupadaQuotesPage() {
+  const [quotes, setQuotes] = useState<IQuote[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeTag, setActiveTag] = useState('All');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const handleNextQuote = () => {
-    setCurrentQuote((prev) => (prev + 1) % quotes.length);
-  };
+  useEffect(() => {
+    const fetchQuotes = async () => {
+      try {
+        const res = await fetch('/api/quotes');
+        if (res.ok) {
+          const data = await res.ok ? await res.json() : [];
+          setQuotes(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch quotes:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchQuotes();
+  }, []);
 
-  const handlePrevQuote = () => {
-    setCurrentQuote((prev) => (prev - 1 + quotes.length) % quotes.length);
+  const allTags = ['All', ...Array.from(new Set(quotes.flatMap(q => q.tags)))];
+
+  const filteredQuotes = quotes.filter(q => {
+    const matchesSearch = q.text.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         q.source.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesTag = activeTag === 'All' || q.tags.includes(activeTag);
+    return matchesSearch && matchesTag;
+  });
+
+  const copyToClipboard = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   return (
-    <div className="min-h-screen bg-pink-50">
-      {/* Hero Section */}
-      <section className="pt-16 pb-8 px-4 text-center">
-        <div className="max-w-7xl mx-auto">
-          <motion.h1
-            className="text-4xl md:text-5xl font-bold text-purple-900 mb-6"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            Prabhupada Quotes
-          </motion.h1>
-          <motion.p
-            className="text-lg text-gray-700 max-w-3xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            Discover the profound wisdom of Srila Prabhupada about brahmacharya - the spiritual path of celibacy and self-discipline.
-          </motion.p>
-        </div>
+    <main className="min-h-screen bg-pink-50 pt-24 pb-20">
+      {/* Header */}
+      <section className="container mx-auto px-4 mb-12 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <p className="text-iskcon-orange font-bold uppercase tracking-[0.3em] text-sm mb-4">Divine Instructions</p>
+          <h1 className="text-4xl md:text-6xl font-black text-gray-900 mb-6">Srila Prabhupada Quotes</h1>
+          <p className="text-gray-600 max-w-2xl mx-auto text-lg italic bg-white/50 py-4 px-6 rounded-2xl border border-pink-100 shadow-sm">
+            "Everything is there in my books. If you want to know me, you read my books."
+          </p>
+        </motion.div>
       </section>
 
-      {/* Main Content */}
-      <section className="py-8 px-4 mb-16">
-        <div className="max-w-4xl mx-auto">
-          {/* Quote Card */}
-          <div className="bg-white rounded-xl shadow-md overflow-hidden mb-10">
-            <div className="p-8">
-              <div className="flex justify-center mb-8">
-                <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-purple-200">
-                  <Image
-                    src="/images/iskcon-logo.png"
-                    alt="Srila Prabhupada"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-
-              <blockquote className="text-xl italic text-center text-gray-700 mb-6 relative">
-                <span className="text-5xl text-purple-300 absolute top-0 left-0">"</span>
-                <p className="px-10 py-2">{quotes[currentQuote].text}</p>
-                <span className="text-5xl text-purple-300 absolute bottom-0 right-0">"</span>
-              </blockquote>
-
-              <p className="text-center text-purple-800 font-medium">
-                — {quotes[currentQuote].source}
-              </p>
-
-              <div className="flex justify-center mt-8 space-x-4">
-                <button
-                  onClick={handlePrevQuote}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition duration-300"
-                >
-                  Previous Quote
-                </button>
-                <button
-                  onClick={handleNextQuote}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition duration-300"
-                >
-                  Next Quote
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* About Brahmachari Life */}
-          <div className="bg-white rounded-xl shadow-md overflow-hidden">
-            <div className="p-8">
-              <h2 className="text-2xl font-semibold text-purple-800 mb-4">About Brahmacharya</h2>
-              <p className="text-gray-700 mb-4">
-                Brahmacharya is the first stage of life in the Vedic system, focused on spiritual education and self-discipline.
-                It forms the foundation for a strong spiritual life through the practice of celibacy and devotional service.
-              </p>
-              <p className="text-gray-700 mb-4">
-                Srila Prabhupada emphasized the importance of brahmacharya training for developing strong spiritual character
-                and understanding the deeper aspects of Krishna consciousness.
-              </p>
-              <p className="text-gray-700">
-                In ISKCON temples worldwide, many devotees practice brahmacharya life, dedicating themselves to spiritual study
-                and service under the guidance of senior devotees and spiritual masters.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* More Resources Section */}
-      <section className="py-12 px-4 bg-purple-100">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-purple-900 mb-8 text-center">Explore More Resources</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Link href="/resources/books" passHref>
-              <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition duration-300 cursor-pointer">
-                <h3 className="text-xl font-semibold text-purple-800 mb-2">Sacred Books</h3>
-                <p className="text-gray-600">Explore our collection of sacred books and scriptures.</p>
-              </div>
-            </Link>
-
-            <Link href="/resources/audio" passHref>
-              <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition duration-300 cursor-pointer">
-                <h3 className="text-xl font-semibold text-purple-800 mb-2">Audio Lectures</h3>
-                <p className="text-gray-600">Listen to enlightening lectures and kirtans.</p>
-              </div>
-            </Link>
-
-            <Link href="/resources/background-remover" passHref>
-              <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition duration-300 cursor-pointer">
-                <h3 className="text-xl font-semibold text-purple-800 mb-2">Background Remover</h3>
-                <p className="text-gray-600">Create professional-looking images for your devotional content.</p>
-              </div>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Newsletter Section */}
-      <section className="py-16 px-4 bg-purple-700 text-white">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">Stay Updated</h2>
-          <p className="mb-8 max-w-2xl mx-auto">Subscribe to our newsletter to receive updates on new resources and upcoming events.</p>
-
-          <form className="flex flex-col md:flex-row gap-4 max-w-lg mx-auto">
+      {/* Filters */}
+      <section className="container mx-auto px-4 mb-12">
+        <div className="bg-white p-6 rounded-3xl shadow-sm border border-pink-100 flex flex-col md:flex-row gap-6 items-center">
+          <div className="relative flex-1 w-full">
+            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
-              type="email"
-              placeholder="Your email address"
-              className="flex-grow px-4 py-3 rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-400"
-              required
+              type="text"
+              placeholder="Search quotes by text or source..."
+              className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-iskcon-orange/20 transition-all text-gray-800"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <button
-              type="submit"
-              className="bg-yellow-500 hover:bg-yellow-600 text-purple-900 font-medium px-6 py-3 rounded-md transition duration-300"
-            >
-              Subscribe
-            </button>
-          </form>
+          </div>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {allTags.slice(0, 8).map(tag => (
+              <button
+                key={tag}
+                onClick={() => setActiveTag(tag)}
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+                  activeTag === tag
+                    ? 'bg-iskcon-orange text-white shadow-lg shadow-orange-200'
+                    : 'bg-gray-50 text-gray-500 hover:bg-pink-100 hover:text-iskcon-orange'
+                }`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
-    </div>
-  );
-};
 
-export default PrabhupadaQuotesPage; 
+      {/* Quotes Content */}
+      <section className="container mx-auto px-4">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-16 h-16 border-4 border-iskcon-orange border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-400 animate-pulse">Fetching divine wisdom...</p>
+          </div>
+        ) : filteredQuotes.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-gray-400 text-xl">No quotes found matching your criteria.</p>
+            <button 
+              onClick={() => {setSearchTerm(''); setActiveTag('All');}}
+              className="mt-4 text-iskcon-orange font-bold hover:underline"
+            >
+              Clear all filters
+            </button>
+          </div>
+        ) : (
+          <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+            <AnimatePresence>
+              {filteredQuotes.map((quote, index) => (
+                <motion.div
+                  key={quote._id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className="break-inside-avoid bg-white p-8 rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all duration-500 border border-pink-50 relative group flex flex-col"
+                >
+                  <FaQuoteLeft className="text-3xl text-iskcon-orange/10 absolute top-8 left-8" />
+                  
+                  <div className="relative z-10">
+                    <p className="text-xl md:text-2xl font-medium text-gray-800 leading-relaxed mb-8 pt-4">
+                      "{quote.text}"
+                    </p>
+                    
+                    <div className="mt-auto border-t border-pink-50 pt-6">
+                      <p className="font-black text-gray-900 text-sm mb-1">– Srila Prabhupada</p>
+                      <p className="text-xs text-gray-400 font-medium uppercase tracking-wider line-clamp-2">
+                        {quote.source} {quote.date && `• ${quote.date}`}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="absolute top-6 right-6 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <button 
+                      onClick={() => copyToClipboard(quote.text, quote._id)}
+                      className="p-2.5 bg-gray-50 hover:bg-iskcon-orange hover:text-white rounded-xl text-gray-400 transition-all shadow-sm"
+                      title="Copy Quote"
+                    >
+                      {copiedId === quote._id ? <FaCheck /> : <FaCopy />}
+                    </button>
+                    <button 
+                      className="p-2.5 bg-gray-50 hover:bg-iskcon-orange hover:text-white rounded-xl text-gray-400 transition-all shadow-sm"
+                      title="Share Quote"
+                    >
+                      <FaShareAlt />
+                    </button>
+                  </div>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {quote.tags.map(tag => (
+                      <span key={tag} className="text-[10px] font-bold uppercase tracking-widest text-iskcon-orange/60 px-2 py-0.5 bg-orange-50 rounded-md">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+      </section>
+
+      {/* Sample Data Notice (only if no data) */}
+      {!loading && quotes.length === 0 && (
+        <section className="container mx-auto px-4 mt-12">
+          <div className="bg-amber-50 border border-amber-100 p-8 rounded-[2rem] text-center">
+            <h3 className="text-amber-800 font-bold text-xl mb-2">No quotes added yet</h3>
+            <p className="text-amber-700/70">The administrator hasn't added any quotes to the database yet. Please check back later or contact the temple admin.</p>
+          </div>
+        </section>
+      )}
+    </main>
+  );
+}

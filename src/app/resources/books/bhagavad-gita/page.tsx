@@ -1,14 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { FaArrowLeft, FaBookmark, FaDownload, FaShare, FaSearch, FaPrint, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { useSearchParams } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  FaArrowLeft, FaBookmark, FaShare, FaSearch, FaChevronLeft,
+  FaChevronRight, FaSpinner, FaOm, FaLanguage, FaBook,
+  FaInfoCircle, FaListUl, FaQuoteRight
+} from 'react-icons/fa';
 
-// Sample chapter data
-const chapters = [
-  { number: 1, title: "Observing the Armies on the Battlefield of Kuruksetra", verses: 47 },
+// ─── Data ─────────────────────────────────────────────────────────────────────
+const CHAPTERS_META = [
+  { number: 1, title: "Observing the Armies on the Battlefield", verses: 47 },
   { number: 2, title: "Contents of the Gita Summarized", verses: 72 },
   { number: 3, title: "Karma-yoga", verses: 43 },
   { number: 4, title: "Transcendental Knowledge", verses: 42 },
@@ -25,410 +29,460 @@ const chapters = [
   { number: 15, title: "The Yoga of the Supreme Person", verses: 20 },
   { number: 16, title: "The Divine and Demoniac Natures", verses: 24 },
   { number: 17, title: "The Divisions of Faith", verses: 28 },
-  { number: 18, title: "Conclusion — The Perfection of Renunciation", verses: 78 }
+  { number: 18, title: "Conclusion — The Perfection of Renunciation", verses: 78 },
 ];
 
-// Sample verse data for Chapter 1
-const sampleVerses = [
-  {
-    number: "1.1",
-    sanskrit: "धृतराष्ट्र उवाच\nधर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः ।\nमामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय ॥१॥",
-    transliteration: "dhṛtarāṣṭra uvāca\ndharma-kṣetre kuru-kṣetre samavetā yuyutsavaḥ\nmāmakāḥ pāṇḍavāś caiva kim akurvata sañjaya",
-    wordByWord: [
-      { sanskrit: "dhṛtarāṣṭraḥ", english: "King Dhṛtarāṣṭra" },
-      { sanskrit: "uvāca", english: "said" },
-      { sanskrit: "dharma-kṣetre", english: "in the place of pilgrimage" },
-      { sanskrit: "kuru-kṣetre", english: "in the place named Kurukṣetra" },
-      { sanskrit: "samavetāḥ", english: "assembled" },
-      { sanskrit: "yuyutsavaḥ", english: "desiring to fight" },
-      { sanskrit: "māmakāḥ", english: "my party (sons)" },
-      { sanskrit: "pāṇḍavāḥ", english: "the sons of Pāṇḍu" },
-      { sanskrit: "ca", english: "and" },
-      { sanskrit: "eva", english: "certainly" },
-      { sanskrit: "kim", english: "what" },
-      { sanskrit: "akurvata", english: "did they do" },
-      { sanskrit: "sañjaya", english: "O Sañjaya" }
-    ],
-    translation: "Dhritarashtra said: O Sanjaya, after my sons and the sons of Pandu assembled in the place of pilgrimage at Kurukshetra, desiring to fight, what did they do?",
-    purport: "Bhagavad-gita is the widely read theistic science summarized in the Gita-mahatmya (Glorification of the Gita). There it says that one should read Bhagavad-gita very scrutinizingly with the help of a person who is a devotee of Sri Krishna and try to understand it without personally motivated interpretations. The example of clear understanding is there in the Bhagavad-gita itself, in the way the teaching is understood by Arjuna, who heard the Gita directly from the Lord. If someone is fortunate enough to understand the Bhagavad-gita in that line of disciplic succession, without motivated interpretation, then he surpasses all studies of Vedic wisdom, and all scriptures of the world. One will find in the Bhagavad-gita all that is contained in other scriptures, but the reader will also find things which are not to be found elsewhere. That is the specific standard of the Gita. It is the perfect theistic science because it is directly spoken by the Supreme Personality of Godhead, Lord Sri Krishna."
-  },
-  {
-    number: "1.2",
-    sanskrit: "सञ्जय उवाच\nदृष्ट्वा तु पाण्डवानीकं व्यूढं दुर्योधनस्तदा ।\nआचार्यमुपसङ्गम्य राजा वचनमब्रवीत् ॥२॥",
-    transliteration: "sañjaya uvāca\ndṛṣṭvā tu pāṇḍavānīkaṁ vyūḍhaṁ duryodhanas tadā\nācāryam upasaṅgamya rājā vacanam abravīt",
-    wordByWord: [
-      { sanskrit: "sañjayaḥ", english: "Sañjaya" },
-      { sanskrit: "uvāca", english: "said" },
-      { sanskrit: "dṛṣṭvā", english: "after seeing" },
-      { sanskrit: "tu", english: "but" },
-      { sanskrit: "pāṇḍava-anīkam", english: "the soldiers of the Pāṇḍavas" },
-      { sanskrit: "vyūḍham", english: "arranged in military phalanx" },
-      { sanskrit: "duryodhanaḥ", english: "King Duryodhana" },
-      { sanskrit: "tadā", english: "at that time" },
-      { sanskrit: "ācāryam", english: "the teacher" },
-      { sanskrit: "upasaṅgamya", english: "approaching nearby" },
-      { sanskrit: "rājā", english: "the king" },
-      { sanskrit: "vacanam", english: "words" },
-      { sanskrit: "abravīt", english: "spoke" }
-    ],
-    translation: "Sanjaya said: O King, after looking over the army arranged in military formation by the sons of Pandu, King Duryodhana went to his teacher and spoke the following words.",
-    purport: "Dhritarashtra was blind from birth. Unfortunately, he was also bereft of spiritual vision. He knew very well that his sons were equally blind in the matter of religion, and he was sure that they could never reach an understanding with the Pandavas, who were all pious since birth. Still he was doubtful about the influence of the place of pilgrimage, and Sanjaya could understand his motive in asking about the situation on the battlefield. Sanjaya wanted, therefore, to encourage the despondent King and thus assured him that his sons were not going to make any sort of compromise under the influence of the holy place. Sanjaya therefore informed the King that his son, Duryodhana, after seeing the military force of the Pandavas, at once went to the commander-in-chief, Dronacharya, to inform him of the real position."
-  },
-  {
-    number: "1.3",
-    sanskrit: "पश्यैतां पाण्डुपुत्राणामाचार्य महतीं चमूम् ।\nव्यूढां द्रुपदपुत्रेण तव शिष्येण धीमता ॥३॥",
-    transliteration: "paśyaitāṁ pāṇḍu-putrāṇām ācārya mahatīṁ camūm\nvyūḍhāṁ drupada-putreṇa tava śiṣyeṇa dhīmatā",
-    wordByWord: [
-      { sanskrit: "paśya", english: "behold" },
-      { sanskrit: "etām", english: "this" },
-      { sanskrit: "pāṇḍu-putrāṇām", english: "of the sons of Pāṇḍu" },
-      { sanskrit: "ācārya", english: "O teacher" },
-      { sanskrit: "mahatīm", english: "great" },
-      { sanskrit: "camūm", english: "military force" },
-      { sanskrit: "vyūḍhām", english: "arranged" },
-      { sanskrit: "drupada-putreṇa", english: "by the son of Drupada" },
-      { sanskrit: "tava", english: "your" },
-      { sanskrit: "śiṣyeṇa", english: "disciple" },
-      { sanskrit: "dhīmatā", english: "very intelligent" }
-    ],
-    translation: "O my teacher, behold the great army of the sons of Pandu, so expertly arranged by your intelligent disciple the son of Drupada.",
-    purport: "Duryodhana, a great diplomat, wanted to point out the defects of Dronacharya, the great brahmin commander-in-chief. Dronacharya had some political quarrel with King Drupada, the father of Draupadi, who was Arjuna's wife. As a result of this quarrel, Drupada performed a great sacrifice, by which he received the benediction of having a son who would be able to kill Dronacharya. Dronacharya knew this perfectly well, and yet as a liberal brahmin he did not hesitate to impart all his military secrets when the son of Drupada, Dhrishtadyumna, was entrusted to him for military education. Now, on the Battlefield of Kurukshetra, Dhrishtadyumna took the side of the Pandavas, and it was he who arranged for their military phalanx, after having learned the art from Dronacharya. Duryodhana pointed out this mistake of Dronacharya's so that he might be alert and uncompromising in the fighting."
-  }
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface Commentary {
+  author: string;
+  et?: string;   // English translation
+  ht?: string;   // Hindi translation
+  ec?: string;   // English commentary
+  hc?: string;   // Hindi commentary
+}
+
+interface VerseData {
+  _id: string;
+  chapter: number;
+  verse: number;
+  slok: string;           // Sanskrit
+  transliteration: string;
+  tej?: Commentary;
+  siva?: Commentary;
+  purohit?: Commentary;
+  chinmay?: Commentary;
+  san?: Commentary;
+  adi?: Commentary;
+  gambir?: Commentary;
+  madhav?: Commentary;
+  anand?: Commentary;
+  rams?: Commentary;
+  raman?: Commentary;
+  abhinav?: Commentary;
+  sankar?: Commentary;
+  jaya?: Commentary;
+  vallabh?: Commentary;
+  ms?: Commentary;
+  srid?: Commentary;
+  dhan?: Commentary;
+  venkat?: Commentary;
+  puru?: Commentary;
+  neel?: Commentary;
+}
+
+interface ChapterMeta {
+  number: number;
+  title: string;
+  verses: number;
+}
+
+// ─── Commentary Tab ───────────────────────────────────────────────────────────
+const COMMENTARIES: { key: keyof VerseData; label: string }[] = [
+  { key: "siva",    label: "Swami Sivananda" },
+  { key: "tej",     label: "Swami Tejomayananda" },
+  { key: "purohit", label: "Shri Purohit Swami" },
+  { key: "chinmay", label: "Swami Chinmayananda" },
+  { key: "san",     label: "Dr. S. Sankaranarayan" },
+  { key: "anand",   label: "Swami Adidevananda" },
+  { key: "rams",    label: "Swami Ramsukhdas" },
+  { key: "puru",    label: "Prabhu Dutt Brahmachari" },
 ];
 
 export default function BhagavadGitaReaderPage() {
-  const [activeChapter, setActiveChapter] = useState(1);
+  const searchParams = useSearchParams();
+
+  const initChapter = parseInt(searchParams?.get("chapter") || "1");
+  const [activeChapter, setActiveChapter] = useState(
+    initChapter >= 1 && initChapter <= 18 ? initChapter : 1
+  );
   const [activeVerse, setActiveVerse] = useState(1);
   const [showSidebar, setShowSidebar] = useState(true);
-  const [showOriginalText, setShowOriginalText] = useState(true);
-  const [showWordByWord, setShowWordByWord] = useState(false);
-  const [showPurport, setShowPurport] = useState(true);
-  const [fontSize, setFontSize] = useState(18);
-  const [loading, setLoading] = useState(true);
-  
-  // High-level data
-  const [fullChapters, setFullChapters] = useState<any[]>([]);
-  const [allVerses, setAllVerses] = useState<any[]>([]);
-  const [allTranslations, setAllTranslations] = useState<any[]>([]);
-  const [allCommentaries, setAllCommentaries] = useState<any[]>([]);
-  
-  // Current view data
-  const [currentVerse, setCurrentVerse] = useState<any>(null);
+  const [showSanskrit, setShowSanskrit] = useState(true);
+  const [showTransliteration, setShowTransliteration] = useState(true);
+  const [fontSize, setFontSize] = useState(17);
+  const [verseData, setVerseData] = useState<VerseData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [activeCommentary, setActiveCommentary] = useState<keyof VerseData>("siva");
+  const [sidebarSearch, setSidebarSearch] = useState("");
+  const [showVerseList, setShowVerseList] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [chRes, vRes, tRes, cRes] = await Promise.all([
-          fetch('/data/gita/chapters.json'),
-          fetch('/data/gita/verse.json'),
-          fetch('/data/gita/translation.json'),
-          fetch('/data/gita/commentary.json')
-        ]);
+  const currentChapterMeta: ChapterMeta = CHAPTERS_META[activeChapter - 1];
 
-        const chaptersData = await chRes.json();
-        const verseData = await vRes.json();
-        const translationData = await tRes.json();
-        const commentaryData = await cRes.json();
-
-        setFullChapters(chaptersData);
-        setAllVerses(verseData);
-        setAllTranslations(translationData);
-        setAllCommentaries(commentaryData);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching Gita data:', error);
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+  // ── Fetch verse from API ───────────────────────────────────────────────────
+  const loadVerse = useCallback(async (ch: number, v: number) => {
+    setIsLoading(true);
+    setError(false);
+    setVerseData(null);
+    try {
+      const res = await fetch(`https://vedicscriptures.github.io/slok/${ch}/${v}`);
+      if (!res.ok) throw new Error();
+      const data: VerseData = await res.json();
+      setVerseData(data);
+    } catch {
+      setError(true);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    if (allVerses.length === 0) return;
+    loadVerse(activeChapter, activeVerse);
+  }, [activeChapter, activeVerse, loadVerse]);
 
-    const verse = allVerses.find(v => v.chapter_number === activeChapter && v.verse_number === activeVerse);
-    if (verse) {
-      const translation = allTranslations.find(t => t.verse_id === verse.id && t.lang === 'english');
-      const commentary = allCommentaries.find(c => c.verse_id === verse.id && c.lang === 'english');
-      
-      setCurrentVerse({
-        number: `${activeChapter}.${activeVerse}`,
-        sanskrit: verse.text,
-        transliteration: verse.transliteration,
-        wordByWord: verse.word_meanings,
-        translation: translation?.description || "Translation loading...",
-        purport: commentary?.description || "Commentary not available."
-      });
-    }
-  }, [activeChapter, activeVerse, allVerses, allTranslations, allCommentaries]);
-
-  // Navigation helpers
+  // ── Navigation helpers ─────────────────────────────────────────────────────
   const nextVerse = () => {
-    const chapterInfo = fullChapters.find(c => c.chapter_number === activeChapter) || chapters[activeChapter - 1];
-    const versesInChapter = chapterInfo?.verses_count || chapterInfo?.verses || 0;
-    
-    if (activeVerse < versesInChapter) {
-      setActiveVerse(activeVerse + 1);
+    if (activeVerse < currentChapterMeta.verses) {
+      setActiveVerse(v => v + 1);
     } else if (activeChapter < 18) {
-      setActiveChapter(activeChapter + 1);
+      setActiveChapter(c => c + 1);
       setActiveVerse(1);
     }
   };
 
   const prevVerse = () => {
     if (activeVerse > 1) {
-      setActiveVerse(activeVerse - 1);
+      setActiveVerse(v => v - 1);
     } else if (activeChapter > 1) {
-      const prevChapterInfo = fullChapters.find(c => c.chapter_number === activeChapter - 1) || chapters[activeChapter - 2];
-      const versesInPrev = prevChapterInfo?.verses_count || prevChapterInfo?.verses || 0;
-      setActiveChapter(activeChapter - 1);
-      setActiveVerse(versesInPrev);
+      const prevMeta = CHAPTERS_META[activeChapter - 2];
+      setActiveChapter(c => c - 1);
+      setActiveVerse(prevMeta.verses);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-pink-50">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-iskcon-orange border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium font-primary">Loading Divine Wisdom...</p>
-        </div>
-      </div>
-    );
-  }
+  const isFirst = activeChapter === 1 && activeVerse === 1;
+  const isLast = activeChapter === 18 && activeVerse === CHAPTERS_META[17].verses;
 
-  const currentChapterInfo = fullChapters.find(c => c.chapter_number === activeChapter) || chapters[activeChapter - 1];
+  // ── Current commentary ─────────────────────────────────────────────────────
+  const getCommentaryText = (key: keyof VerseData) => {
+    if (!verseData) return null;
+    const c = verseData[key] as Commentary | undefined;
+    if (!c) return null;
+    return c.et || c.ht || c.ec || c.hc || null;
+  };
+
+  const filteredChapters = CHAPTERS_META.filter(
+    ch =>
+      ch.title.toLowerCase().includes(sidebarSearch.toLowerCase()) ||
+      String(ch.number).includes(sidebarSearch)
+  );
 
   return (
-    <div className="min-h-screen flex flex-col font-primary">
-      {/* Top Navigation Bar */}
-      <header className="bg-white shadow-md py-3 px-4 fixed top-0 left-0 right-0 z-40">
+    <div className="min-h-screen flex flex-col bg-amber-50">
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      <header className="bg-white shadow-sm py-3 px-4 fixed top-0 left-0 right-0 z-50 border-b border-gray-100">
         <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center">
-            <Link href="/resources/books" className="flex items-center text-gray-600 hover:text-iskcon-orange mr-4">
-              <FaArrowLeft className="mr-2" /> <span className="hidden sm:inline">Back to Books</span>
+          <div className="flex items-center gap-4">
+            <Link href="/resources/books" className="flex items-center gap-2 text-gray-600 hover:text-iskcon-orange transition-colors text-sm font-medium">
+              <FaArrowLeft /> Back to Books
             </Link>
-            <h1 className="text-lg md:text-xl font-bold">Bhagavad-gita As It Is</h1>
+            <div className="hidden md:flex items-center gap-2">
+              <FaOm className="text-iskcon-orange text-xl" />
+              <h1 className="text-lg font-bold text-gray-800">Bhagavad-gita As It Is</h1>
+            </div>
           </div>
-          <div className="flex items-center space-x-1 sm:space-x-3">
-            <button 
-              onClick={() => setFontSize(Math.max(12, fontSize - 2))}
-              className="p-2 text-gray-600 hover:text-iskcon-orange"
-              aria-label="Decrease font size"
-            >
-              A-
+
+          <div className="flex items-center gap-1 md:gap-2">
+            <button onClick={() => setFontSize(s => Math.max(13, s - 1))} className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-iskcon-orange hover:bg-orange-50 rounded transition-colors font-bold text-sm">A-</button>
+            <span className="text-xs text-gray-400 hidden md:block">{fontSize}px</span>
+            <button onClick={() => setFontSize(s => Math.min(26, s + 1))} className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-iskcon-orange hover:bg-orange-50 rounded transition-colors font-bold text-base">A+</button>
+
+            <button className="w-8 h-8 hidden md:flex items-center justify-center text-gray-600 hover:text-iskcon-orange hover:bg-orange-50 rounded transition-colors">
+              <FaBookmark />
             </button>
-            <button 
-              onClick={() => setFontSize(Math.min(32, fontSize + 2))}
-              className="p-2 text-gray-600 hover:text-iskcon-orange"
-              aria-label="Increase font size"
-            >
-              A+
+            <button className="w-8 h-8 hidden md:flex items-center justify-center text-gray-600 hover:text-iskcon-orange hover:bg-orange-50 rounded transition-colors">
+              <FaShare />
             </button>
-            <button 
-              onClick={() => window.print()} 
-              className="p-2 text-gray-600 hover:text-iskcon-orange hidden md:block"
-              aria-label="Print"
+
+            <button
+              onClick={() => setShowSidebar(s => !s)}
+              className="ml-2 px-4 py-1.5 bg-iskcon-orange text-white rounded-full text-sm font-semibold hover:bg-opacity-90 transition-colors"
             >
-              <FaPrint />
-            </button>
-            <button 
-              onClick={() => setShowSidebar(!showSidebar)} 
-              className="ml-2 px-3 py-1.5 bg-iskcon-orange text-white rounded text-sm font-bold shadow-sm hover:bg-iskcon-orange/90 transition-all"
-            >
-              {showSidebar ? "Hide Chapters" : "Show Chapters"}
+              {showSidebar ? "Hide" : "Chapters"}
             </button>
           </div>
         </div>
       </header>
 
-      <div className="flex flex-1 pt-16">
-        {/* Sidebar - Chapters Navigation */}
-        {showSidebar && (
-          <aside className="w-64 lg:w-80 bg-white border-r border-gray-200 h-[calc(100vh-4rem)] fixed left-0 top-16 overflow-y-auto p-4 z-30 transition-all">
-            <h2 className="font-bold text-lg mb-3 px-2">Chapters</h2>
-            <div className="space-y-1">
-              {(fullChapters.length > 0 ? fullChapters : chapters).map((chapter) => {
-                const num = chapter.chapter_number || chapter.number;
-                const title = chapter.name || chapter.title;
-                return (
-                  <button
-                    key={num}
-                    onClick={() => {
-                      setActiveChapter(num);
-                      setActiveVerse(1);
-                      if (window.innerWidth < 1024) setShowSidebar(false);
-                    }}
-                    className={`block w-full text-left px-3 py-2.5 rounded-lg transition-colors ${
-                      activeChapter === num
-                        ? "bg-iskcon-orange/10 text-iskcon-orange font-bold border-l-4 border-iskcon-orange"
-                        : "hover:bg-gray-100"
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold mr-3 text-xs ${
-                        activeChapter === num ? "bg-iskcon-orange text-white" : "bg-gray-100 text-gray-500"
-                      }`}>
-                        {num}
-                      </div>
-                      <span className="text-sm line-clamp-2 leading-tight">{title}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </aside>
-        )}
-
-        {/* Main Content */}
-        <main 
-          className={`flex-1 bg-white min-h-screen transition-all ${
-            showSidebar ? "ml-64 lg:ml-80" : "ml-0"
-          }`}
-        >
-          <div className="container mx-auto px-4 py-8 max-w-4xl">
-            {/* Chapter Title */}
-            <motion.div 
-              key={`chapter-head-${activeChapter}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="mb-8 text-center"
+      <div className="flex flex-1 pt-14">
+        {/* ── Sidebar ────────────────────────────────────────────────────────── */}
+        <AnimatePresence>
+          {showSidebar && (
+            <motion.aside
+              initial={{ x: -300, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -300, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="w-72 bg-white border-r border-gray-200 h-[calc(100vh-3.5rem)] fixed left-0 top-14 overflow-y-auto z-40"
             >
-              <p className="text-iskcon-orange font-bold uppercase tracking-widest text-sm mb-1">Chapter {activeChapter}</p>
-              <h2 className="text-2xl md:text-3xl font-black mb-2 text-gray-900 px-4">
-                {currentChapterInfo?.name || currentChapterInfo?.title}
+              <div className="p-4">
+                <div className="relative mb-4">
+                  <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs" />
+                  <input
+                    type="text"
+                    placeholder="Search chapters…"
+                    value={sidebarSearch}
+                    onChange={e => setSidebarSearch(e.target.value)}
+                    className="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-iskcon-orange"
+                  />
+                </div>
+                <p className="text-xs font-bold uppercase text-gray-400 tracking-wider mb-3 px-1">18 Chapters</p>
+                <div className="space-y-1">
+                  {filteredChapters.map(ch => (
+                    <button
+                      key={ch.number}
+                      onClick={() => { setActiveChapter(ch.number); setActiveVerse(1); }}
+                      className={`w-full text-left px-3 py-2.5 rounded-xl transition-all text-sm ${
+                        activeChapter === ch.number
+                          ? "bg-iskcon-orange/10 text-iskcon-orange font-semibold border border-iskcon-orange/20"
+                          : "hover:bg-gray-50 text-gray-700"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                          activeChapter === ch.number ? "bg-iskcon-orange text-white" : "bg-gray-100 text-gray-600"
+                        }`}>
+                          {ch.number}
+                        </div>
+                        <div>
+                          <p className="leading-tight">{ch.title}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">{ch.verses} verses</p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </motion.aside>
+          )}
+        </AnimatePresence>
+
+        {/* ── Main Content ────────────────────────────────────────────────────── */}
+        <main
+          className={`flex-1 min-h-screen transition-all duration-200 ${showSidebar ? "ml-0 md:ml-72" : "ml-0"}`}
+        >
+          <div className="max-w-3xl mx-auto px-4 py-10">
+            {/* Chapter Title */}
+            <div className="text-center mb-8">
+              <span className="inline-block bg-iskcon-orange/10 text-iskcon-orange text-sm font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-3">
+                Chapter {activeChapter}
+              </span>
+              <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-2">
+                {currentChapterMeta.title}
               </h2>
-              <div className="w-24 h-1 bg-iskcon-orange mx-auto mb-3"></div>
-              <p className="text-gray-500 font-medium">
-                {currentChapterInfo?.verses_count || currentChapterInfo?.verses} Verses
-              </p>
-            </motion.div>
+              <p className="text-gray-500">{currentChapterMeta.verses} verses</p>
+            </div>
 
             {/* Display Options */}
-            <div className="bg-gray-50 p-5 rounded-2xl border border-gray-100 mb-8 flex flex-wrap gap-6 items-center justify-center">
-              <span className="text-sm font-bold text-gray-500 uppercase">View:</span>
-              <label className="flex items-center cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={showOriginalText}
-                  onChange={() => setShowOriginalText(!showOriginalText)}
-                  className="w-4 h-4 rounded text-iskcon-orange focus:ring-iskcon-orange mr-2"
-                />
-                <span className={`text-sm font-medium transition-colors ${showOriginalText ? "text-iskcon-orange" : "text-gray-500 group-hover:text-gray-700"}`}>Sanskrit</span>
+            <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-6 flex flex-wrap gap-4 items-center">
+              <span className="text-sm font-semibold text-gray-600">Display:</span>
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input type="checkbox" checked={showSanskrit} onChange={() => setShowSanskrit(s => !s)} className="accent-iskcon-orange" />
+                <FaOm className="text-iskcon-orange" /> Sanskrit
               </label>
-              <label className="flex items-center cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={showWordByWord}
-                  onChange={() => setShowWordByWord(!showWordByWord)}
-                  className="w-4 h-4 rounded text-iskcon-orange focus:ring-iskcon-orange mr-2"
-                />
-                <span className={`text-sm font-medium transition-colors ${showWordByWord ? "text-iskcon-orange" : "text-gray-500 group-hover:text-gray-700"}`}>Word Meanings</span>
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input type="checkbox" checked={showTransliteration} onChange={() => setShowTransliteration(s => !s)} className="accent-iskcon-orange" />
+                <FaLanguage className="text-iskcon-orange" /> Transliteration
               </label>
-              <label className="flex items-center cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={showPurport}
-                  onChange={() => setShowPurport(!showPurport)}
-                  className="w-4 h-4 rounded text-iskcon-orange focus:ring-iskcon-orange mr-2"
-                />
-                <span className={`text-sm font-medium transition-colors ${showPurport ? "text-iskcon-orange" : "text-gray-500 group-hover:text-gray-700"}`}>Purport</span>
-              </label>
-            </div>
 
-            {/* Verse Navigation */}
-            <div className="flex items-center justify-between mb-8 sticky top-20 bg-white/80 backdrop-blur-md py-2 z-20 px-2 rounded-xl">
-              <button
-                onClick={prevVerse}
-                disabled={activeChapter === 1 && activeVerse === 1}
-                className="p-3 bg-gray-100 hover:bg-iskcon-orange hover:text-white rounded-full transition-all disabled:opacity-30"
-                title="Previous Verse"
-              >
-                <FaChevronLeft />
-              </button>
-              <div className="flex flex-col items-center">
-                <span className="text-xs font-bold text-gray-400 uppercase">Verse</span>
-                <span className="text-xl font-black text-iskcon-orange">
-                  {activeVerse} <span className="text-gray-300 font-normal">/ {currentChapterInfo?.verses_count || currentChapterInfo?.verses}</span>
-                </span>
+              {/* Verse jump */}
+              <div className="ml-auto flex items-center gap-2">
+                <button
+                  onClick={() => setShowVerseList(s => !s)}
+                  className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-iskcon-orange border border-gray-200 rounded-lg px-3 py-1.5"
+                >
+                  <FaListUl /> Jump to verse
+                </button>
               </div>
-              <button
-                onClick={nextVerse}
-                disabled={activeChapter === 18 && activeVerse === 78}
-                className="p-3 bg-gray-100 hover:bg-iskcon-orange hover:text-white rounded-full transition-all disabled:opacity-30"
-                title="Next Verse"
-              >
-                <FaChevronRight />
-              </button>
             </div>
 
-            {/* Verse Content */}
-            {currentVerse && (
-              <motion.div
-                key={`${activeChapter}-${activeVerse}`}
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white rounded-3xl shadow-xl shadow-pink-100/50 border border-pink-50 overflow-hidden mb-12"
-              >
-                <div className="bg-gradient-to-r from-iskcon-orange to-iskcon-saffron p-6 text-white">
-                  <h3 className="text-xl font-black tracking-tight flex items-center">
-                    <span className="bg-white/20 px-3 py-1 rounded-lg text-sm mr-3">BG {currentVerse.number}</span>
-                    The Divine Message
-                  </h3>
-                </div>
-
-                <div className="p-8 md:p-12 space-y-12" style={{ fontSize: `${fontSize}px` }}>
-                  {/* Sanskrit Text */}
-                  {showOriginalText && (
-                    <section className="text-center bg-pink-50/30 p-8 rounded-3xl border border-pink-100/50">
-                      <p className="font-sanskrit text-2xl md:text-3xl text-gray-900 whitespace-pre-line leading-[1.8] mb-8 font-bold italic" style={{ fontSize: `${fontSize + 6}px` }}>
-                        {currentVerse.sanskrit}
-                      </p>
-                      <p className="text-gray-500 italic leading-relaxed max-w-2xl mx-auto" style={{ fontSize: `${fontSize}px` }}>
-                        {currentVerse.transliteration}
-                      </p>
-                    </section>
-                  )}
-
-                  {/* Word by Word */}
-                  {showWordByWord && currentVerse.wordByWord && (
-                    <section>
-                      <h4 className="flex items-center text-sm font-black text-gray-400 uppercase tracking-widest mb-6 border-l-4 border-iskcon-orange pl-4">Word Meanings</h4>
-                      <div className="bg-gray-50 p-6 rounded-2xl text-gray-700 leading-relaxed whitespace-pre-line font-medium border border-gray-100">
-                        {currentVerse.wordByWord}
-                      </div>
-                    </section>
-                  )}
-
-                  {/* Translation */}
-                  <section>
-                    <h4 className="flex items-center text-sm font-black text-gray-400 uppercase tracking-widest mb-6 border-l-4 border-iskcon-orange pl-4">Translation</h4>
-                    <p className="text-gray-800 font-bold leading-relaxed text-lg" style={{ fontSize: `${fontSize + 2}px` }}>
-                      {currentVerse.translation}
-                    </p>
-                  </section>
-
-                  {/* Purport */}
-                  {showPurport && (
-                    <section className="border-t border-gray-100 pt-10">
-                      <h4 className="flex items-center text-sm font-black text-gray-400 uppercase tracking-widest mb-6 border-l-4 border-iskcon-orange pl-4">Purport</h4>
-                      <div className="text-gray-700 leading-relaxed space-y-4 whitespace-pre-line">
-                        {currentVerse.purport}
-                      </div>
-                    </section>
-                  )}
+            {/* Verse Selector (dropdown) */}
+            {showVerseList && (
+              <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="bg-white border border-gray-100 rounded-2xl p-4 mb-6 max-h-52 overflow-y-auto">
+                <div className="flex flex-wrap gap-2">
+                  {Array.from({ length: currentChapterMeta.verses }, (_, i) => i + 1).map(v => (
+                    <button
+                      key={v}
+                      onClick={() => { setActiveVerse(v); setShowVerseList(false); }}
+                      className={`w-10 h-10 rounded-lg text-sm font-semibold transition-all ${
+                        activeVerse === v
+                          ? "bg-iskcon-orange text-white"
+                          : "bg-gray-100 text-gray-600 hover:bg-orange-100 hover:text-iskcon-orange"
+                      }`}
+                    >
+                      {v}
+                    </button>
+                  ))}
                 </div>
               </motion.div>
             )}
 
-            {/* Bottom Nav */}
-            <div className="flex justify-center gap-4 mb-20">
-               <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="px-6 py-3 bg-gray-900 text-white rounded-full font-bold text-sm shadow-lg hover:bg-gray-800 transition-all flex items-center">
-                 Scroll to Top
-               </button>
+            {/* Navigation (top) */}
+            <div className="flex items-center justify-between mb-6">
+              <button
+                onClick={prevVerse}
+                disabled={isFirst}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                  isFirst ? "bg-gray-100 text-gray-300 cursor-not-allowed" : "bg-white hover:bg-orange-50 text-gray-700 border border-gray-200 hover:border-iskcon-orange"
+                }`}
+              >
+                <FaChevronLeft /> Prev
+              </button>
+              <span className="text-sm font-semibold text-gray-600 bg-white px-4 py-2 rounded-xl border border-gray-200">
+                Verse {activeVerse} / {currentChapterMeta.verses}
+              </span>
+              <button
+                onClick={nextVerse}
+                disabled={isLast}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                  isLast ? "bg-gray-100 text-gray-300 cursor-not-allowed" : "bg-white hover:bg-orange-50 text-gray-700 border border-gray-200 hover:border-iskcon-orange"
+                }`}
+              >
+                Next <FaChevronRight />
+              </button>
+            </div>
+
+            {/* Verse Content */}
+            <AnimatePresence mode="wait">
+              {isLoading ? (
+                <motion.div
+                  key="loading"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="bg-white rounded-3xl shadow-md p-16 flex flex-col items-center gap-4 text-iskcon-orange"
+                >
+                  <FaSpinner className="text-4xl animate-spin" />
+                  <p className="text-gray-500 text-sm">Loading verse {activeChapter}.{activeVerse}…</p>
+                </motion.div>
+              ) : error ? (
+                <motion.div
+                  key="error"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="bg-white rounded-3xl shadow-md p-16 text-center"
+                >
+                  <p className="text-red-500 font-semibold mb-3">Could not load this verse. Please check your connection.</p>
+                  <button onClick={() => loadVerse(activeChapter, activeVerse)} className="btn-primary text-sm">
+                    Retry
+                  </button>
+                </motion.div>
+              ) : verseData ? (
+                <motion.div
+                  key={`${activeChapter}-${activeVerse}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.35 }}
+                  className="bg-white rounded-3xl shadow-md overflow-hidden mb-8"
+                  style={{ fontSize: `${fontSize}px` }}
+                >
+                  {/* Verse header */}
+                  <div className="bg-gradient-to-r from-iskcon-orange/10 to-amber-50 px-8 py-5 border-b border-orange-100 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <FaOm className="text-iskcon-orange text-2xl" />
+                      <h3 className="font-black text-iskcon-orange text-lg">
+                        Bhagavad-gita {activeChapter}.{activeVerse}
+                      </h3>
+                    </div>
+                    <span className="text-xs bg-iskcon-orange/10 text-iskcon-orange px-3 py-1 rounded-full font-semibold">
+                      BG {verseData._id}
+                    </span>
+                  </div>
+
+                  <div className="p-8">
+                    {/* Sanskrit */}
+                    {showSanskrit && (
+                      <div className="mb-7 pb-7 border-b border-dashed border-gray-200">
+                        <p className="text-xs font-bold uppercase text-gray-400 tracking-widest mb-3">Sanskrit</p>
+                        <p className="font-sanskrit text-gray-900 whitespace-pre-line leading-[2] text-[1.1em]">
+                          {verseData.slok}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Transliteration */}
+                    {showTransliteration && (
+                      <div className="mb-7 pb-7 border-b border-dashed border-gray-200">
+                        <p className="text-xs font-bold uppercase text-gray-400 tracking-widest mb-3">Transliteration</p>
+                        <p className="text-gray-500 italic whitespace-pre-line leading-relaxed">
+                          {verseData.transliteration}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Translation */}
+                    <div className="mb-7">
+                      <div className="flex items-center gap-2 mb-3">
+                        <FaBook className="text-iskcon-orange" />
+                        <p className="text-xs font-bold uppercase text-gray-400 tracking-widest">Translation</p>
+                      </div>
+                      <p className="text-gray-800 leading-relaxed font-medium">
+                        {verseData.siva?.et || verseData.tej?.ht || verseData.purohit?.et || "Translation not available."}
+                      </p>
+                    </div>
+
+                    {/* Commentary Tabs */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <FaQuoteRight className="text-iskcon-orange" />
+                        <p className="text-xs font-bold uppercase text-gray-400 tracking-widest">Commentary</p>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {COMMENTARIES.map(({ key, label }) => {
+                          const commentaryObj = verseData[key] as Commentary | undefined;
+                          const available = !!(commentaryObj?.et || commentaryObj?.ht || commentaryObj?.ec || commentaryObj?.hc);
+                          if (!available) return null;
+                          return (
+                            <button
+                              key={key}
+                              onClick={() => setActiveCommentary(key)}
+                              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                                activeCommentary === key
+                                  ? "bg-iskcon-orange text-white"
+                                  : "bg-gray-100 text-gray-600 hover:bg-orange-100"
+                              }`}
+                            >
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <div className="bg-amber-50 rounded-2xl p-6 border border-amber-100">
+                        <p className="text-xs font-semibold text-amber-700 mb-3">
+                          {(verseData[activeCommentary] as Commentary | undefined)?.author || "Commentary"}
+                        </p>
+                        <p className="text-gray-700 leading-relaxed">
+                          {getCommentaryText(activeCommentary) || "No commentary available for this translation. Try another commentary above."}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+
+            {/* Navigation (bottom) */}
+            <div className="flex items-center justify-between mt-4 mb-16">
+              <button
+                onClick={prevVerse}
+                disabled={isFirst}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                  isFirst ? "bg-gray-100 text-gray-300 cursor-not-allowed" : "bg-white hover:bg-orange-50 text-gray-700 border border-gray-200 hover:border-iskcon-orange"
+                }`}
+              >
+                <FaChevronLeft /> Prev Verse
+              </button>
+              <button
+                onClick={nextVerse}
+                disabled={isLast}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                  isLast ? "bg-gray-100 text-gray-300 cursor-not-allowed" : "bg-iskcon-orange text-white hover:bg-opacity-90 shadow-md"
+                }`}
+              >
+                Next Verse <FaChevronRight />
+              </button>
             </div>
           </div>
         </main>
