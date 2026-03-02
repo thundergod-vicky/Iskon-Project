@@ -1,248 +1,333 @@
-import React from 'react';
-import Image from 'next/image';
-import { FaSearch, FaPlay, FaPause, FaDownload, FaHeart, FaRegHeart, FaShare } from 'react-icons/fa';
-import { IconType } from 'react-icons';
+'use client';
 
-interface FeaturedContent {
+import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaSearch, FaPlay, FaPause, FaDownload, FaHeart, FaRegHeart, FaShare, FaVolumeUp, FaStepForward, FaStepBackward, FaMusic, FaUser, FaClock, FaQuoteLeft, FaTimes } from 'react-icons/fa';
+
+interface Audio {
+  _id: string;
   title: string;
   speaker: string;
+  audioUrl: string;
   duration: string;
   description: string;
-  date: string;
+  category: string;
+  tags: string[];
   image: string;
+  date: string;
 }
-
-interface AudioCategory {
-  name: string;
-  description: string;
-  count: number;
-  icon: React.ReactNode;
-}
-
-// Sample audio content
-const featuredContent: FeaturedContent[] = [
-  {
-    title: "Introduction to Bhagavad Gita",
-    speaker: "Srila Prabhupada",
-    duration: "45:30",
-    description: "A comprehensive introduction to the timeless wisdom of Bhagavad Gita.",
-    date: "May 15, 2023",
-    image: "/images/bhagavad-gita-intro.jpg"
-  },
-  {
-    title: "Hare Krishna Maha Mantra Kirtan",
-    speaker: "Aindra Prabhu",
-    duration: "1:12:45",
-    description: "Beautiful kirtan of the Hare Krishna Maha Mantra.",
-    date: "June 3, 2023",
-    image: "/images/kirtan-1.jpg"
-  },
-  {
-    title: "The Science of Self-Realization",
-    speaker: "Radhanath Swami",
-    duration: "52:15",
-    description: "Exploring the deep science behind self-realization and spiritual consciousness.",
-    date: "July 10, 2023",
-    image: "/images/self-realization.jpg"
-  }
-];
-
-const audioCategories: AudioCategory[] = [
-  {
-    name: "Lectures",
-    description: "Philosophical and spiritual discourses",
-    count: 245,
-    icon: <FaSearch className="text-iskcon-orange text-2xl" />
-  },
-  {
-    name: "Kirtans",
-    description: "Devotional chanting and songs",
-    count: 187,
-    icon: <FaPlay className="text-iskcon-orange text-2xl" />
-  },
-  {
-    name: "Bhajans",
-    description: "Traditional devotional songs",
-    count: 142,
-    icon: <FaHeart className="text-iskcon-orange text-2xl" />
-  },
-  {
-    name: "Guided Meditations",
-    description: "Spiritual meditation sessions",
-    count: 78,
-    icon: <FaPause className="text-iskcon-orange text-2xl" />
-  }
-];
 
 export default function AudioPage() {
+  const [audios, setAudios] = useState<Audio[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  
+  // Player State
+  const [currentAudio, setCurrentAudio] = useState<Audio | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [volume, setVolume] = useState(0.8);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    fetchAudios();
+  }, []);
+
+  const fetchAudios = async () => {
+    try {
+      const res = await fetch('/api/audios');
+      const data = await res.json();
+      setAudios(data);
+    } catch (err) {
+      console.error('Failed to fetch audios:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePlay = (audio: Audio) => {
+    if (currentAudio?._id === audio._id) {
+      setIsPlaying(!isPlaying);
+      if (isPlaying) audioRef.current?.pause();
+      else audioRef.current?.play();
+    } else {
+      setCurrentAudio(audio);
+      setIsPlaying(true);
+      setProgress(0);
+      if (audioRef.current) {
+        audioRef.current.src = audio.audioUrl;
+        audioRef.current.play();
+      }
+    }
+  };
+
+  const onTimeUpdate = () => {
+    if (audioRef.current) {
+      const p = (audioRef.current.currentTime / audioRef.current.duration) * 100;
+      setProgress(p || 0);
+    }
+  };
+
+  const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseFloat(e.target.value);
+    setProgress(val);
+    if (audioRef.current) {
+      audioRef.current.currentTime = (val / 100) * audioRef.current.duration;
+    }
+  };
+
+  const categories = ['All', 'Lecture', 'Kirtan', 'Bhajan', 'Guided Meditation'];
+
+  const filteredAudios = audios.filter(audio => {
+    const matchesSearch = audio.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         audio.speaker.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || audio.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-pink-50 pb-32">
+      {/* Hidden Audio Element */}
+      <audio 
+        ref={audioRef} 
+        onTimeUpdate={onTimeUpdate}
+        onEnded={() => setIsPlaying(false)}
+        className="hidden"
+      />
+
       {/* Hero section */}
-      <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-iskcon-orange/20 to-iskcon-blue/20"></div>
+      <section className="relative pt-32 pb-20 overflow-hidden">
+        <div className="absolute inset-0 z-0 opacity-10">
+          <div className="absolute top-20 left-10 w-64 h-64 bg-iskcon-orange rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-pink-300 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
+        
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800">Spiritual Audio Resources</h1>
-            <p className="text-xl text-gray-600 mb-8">
-              Explore an extensive collection of lectures, kirtans, bhajans, and guided meditations to deepen your spiritual practice.
-            </p>
-            <div className="relative max-w-2xl mx-auto">
-              <input
-                type="text"
-                placeholder="Search for lectures, kirtans, bhajans..."
-                className="w-full pl-12 pr-4 py-3 rounded-full border border-gray-300 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-iskcon-orange"
-              />
-              <FaSearch className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-iskcon-orange text-white px-4 py-1.5 rounded-full hover:bg-iskcon-orange-dark transition">
-                Search
-              </button>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <h1 className="text-5xl md:text-7xl font-black mb-6 text-gray-900 tracking-tight">
+                Spiritual <span className="text-iskcon-orange">Vibrations</span>
+              </h1>
+              <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto font-medium">
+                Immerse yourself in transcendental knowledge and devotion with our curated audio library from around the globe.
+              </p>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="relative max-w-2xl mx-auto shadow-2xl rounded-3xl overflow-hidden bg-white/80 backdrop-blur-md border border-white p-2"
+            >
+              <div className="flex items-center">
+                <div className="pl-6 text-gray-400">
+                  <FaSearch className="text-xl" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search for lectures, kirtans, speakers..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className="w-full bg-transparent px-4 py-4 text-gray-800 placeholder-gray-400 focus:outline-none font-medium"
+                />
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Featured content section */}
-      <section className="py-12 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">Featured Audio</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredContent.map((item, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100">
-                <div className="relative h-48 bg-iskcon-orange/10">
-                  <Image
-                    src={item.image}
-                    alt={item.title}
-                    fill
-                    className="object-cover"
-                  />
-                  <button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-iskcon-orange hover:bg-iskcon-orange-dark rounded-full p-4 text-white shadow-lg transition">
-                    <FaPlay className="text-2xl" />
+      {/* Main Content */}
+      <section className="container mx-auto px-4">
+        <div className="flex flex-col lg:flex-row gap-10">
+          {/* Sidebar Filters */}
+          <aside className="lg:w-1/4 space-y-8">
+            <div className="bg-white p-6 rounded-3xl shadow-sm border border-pink-100">
+              <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <FaMusic className="text-iskcon-orange" /> Categories
+              </h3>
+              <div className="space-y-2">
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`w-full text-left px-4 py-3 rounded-2xl font-bold transition-all flex justify-between items-center ${
+                      selectedCategory === cat 
+                      ? 'bg-iskcon-orange text-white shadow-lg shadow-orange-100' 
+                      : 'text-gray-500 hover:bg-pink-50 hover:text-iskcon-orange'
+                    }`}
+                  >
+                    {cat}
+                    {selectedCategory === cat && <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>}
                   </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-iskcon-orange to-orange-600 p-8 rounded-3xl text-white shadow-xl relative overflow-hidden group">
+               <FaQuoteLeft className="absolute -top-4 -right-4 text-8xl opacity-10 group-hover:rotate-12 transition-transform duration-500" />
+               <p className="font-serif italic text-lg relative z-10 mb-4">
+                 "In this age of Kaali, the only means of deliverance is the chanting of the holy names of the Lord."
+               </p>
+               <cite className="font-bold text-sm opacity-80">— Chaitanya Mahaprabhu</cite>
+            </div>
+          </aside>
+
+          {/* Audio List */}
+          <div className="lg:w-3/4">
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
+                {[1,2,3,4].map(i => <div key={i} className="h-48 bg-gray-200 rounded-3xl"></div>)}
+              </div>
+            ) : filteredAudios.length === 0 ? (
+              <div className="bg-white rounded-3xl p-20 text-center border-2 border-dashed border-gray-200">
+                <FaMusic className="text-6xl mx-auto mb-6 text-gray-200" />
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">No Audios Found</h3>
+                <p className="text-gray-500">Try adjusting your search or filters.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <AnimatePresence mode="popLayout">
+                  {filteredAudios.map((audio) => (
+                    <motion.div
+                      key={audio._id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      whileHover={{ y: -5 }}
+                      className="bg-white rounded-3xl p-6 shadow-sm border border-transparent hover:border-pink-200 hover:shadow-xl transition-all group flex gap-5"
+                    >
+                      <div className="shrink-0 relative w-24 h-24 rounded-2xl overflow-hidden bg-gray-100">
+                        <Image 
+                          src={audio.image || '/images/audio-placeholder.jpg'} 
+                          alt={audio.title} 
+                          fill 
+                          className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                        />
+                        <button 
+                          onClick={() => handlePlay(audio)}
+                          className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          {currentAudio?._id === audio._id && isPlaying ? 
+                            <FaPause className="text-white text-2xl" /> : 
+                            <FaPlay className="text-white text-2xl ml-1" />
+                          }
+                        </button>
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-iskcon-orange mb-1 block">
+                          {audio.category}
+                        </span>
+                        <h3 className="font-bold text-gray-900 mb-1 group-hover:text-iskcon-orange transition-colors line-clamp-1">
+                          {audio.title}
+                        </h3>
+                        <p className="text-sm text-gray-500 flex items-center gap-1 mb-2">
+                          <FaUser className="text-xs" /> {audio.speaker}
+                        </p>
+                        <div className="flex items-center justify-between mt-auto">
+                          <span className="text-xs text-gray-400 font-medium flex items-center gap-1">
+                            <FaClock /> {audio.duration}
+                          </span>
+                          <div className="flex gap-2">
+                             <a 
+                               href={audio.audioUrl} 
+                               download 
+                               className="p-2 text-gray-400 hover:text-iskcon-orange transition-colors"
+                               onClick={(e) => e.stopPropagation()}
+                             >
+                               <FaDownload />
+                             </a>
+                             <button className="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                               <FaRegHeart />
+                             </button>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Floating Audio Player */}
+      <AnimatePresence>
+        {currentAudio && (
+          <motion.div
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            exit={{ y: 100 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-4xl z-50 pointer-events-none"
+          >
+            <div className="bg-white/95 backdrop-blur-xl border border-white/50 shadow-2xl rounded-full px-6 py-4 pointer-events-auto flex items-center gap-8">
+              {/* Info */}
+              <div className="hidden md:flex items-center gap-4 w-1/4">
+                <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 shadow-lg border-2 border-iskcon-orange">
+                  <Image src={currentAudio.image || '/images/audio-placeholder.jpg'} alt={currentAudio.title} fill className="object-cover" />
                 </div>
-                <div className="p-5">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <h3 className="font-bold text-lg line-clamp-1 text-gray-800">{item.title}</h3>
-                      <p className="text-gray-600 text-sm">{item.speaker}</p>
-                    </div>
-                    <span className="bg-iskcon-orange/10 text-gray-700 text-xs px-2 py-1 rounded">
-                      {item.duration}
-                    </span>
-                  </div>
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">{item.description}</p>
-                  <div className="flex justify-between items-center">
-                    <div className="flex space-x-2">
-                      <button className="text-gray-400 hover:text-iskcon-orange">
-                        <FaRegHeart />
-                      </button>
-                      <button className="text-gray-400 hover:text-iskcon-orange">
-                        <FaShare />
-                      </button>
-                      <button className="text-gray-400 hover:text-iskcon-orange">
-                        <FaDownload />
-                      </button>
-                    </div>
-                    <span className="text-xs text-gray-500">{item.date}</span>
-                  </div>
+                <div className="min-w-0">
+                  <h4 className="text-sm font-bold text-gray-900 truncate">{currentAudio.title}</h4>
+                  <p className="text-[10px] text-gray-500 font-bold truncate uppercase tracking-widest">{currentAudio.speaker}</p>
                 </div>
               </div>
-            ))}
-          </div>
-          <div className="text-center mt-8">
-            <button className="bg-iskcon-orange text-white px-6 py-2 rounded-full hover:bg-iskcon-orange-dark transition">
-              View All Featured Content
-            </button>
-          </div>
-        </div>
-      </section>
 
-      {/* Categories section */}
-      <section className="py-12 bg-gradient-to-r from-iskcon-blue/10 to-iskcon-orange/10">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">Browse by Category</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {audioCategories.map((category, index) => (
-              <div 
-                key={index} 
-                className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow text-center"
-              >
-                <div className="w-16 h-16 mx-auto bg-iskcon-orange/10 rounded-full flex items-center justify-center mb-4">
-                  {category.icon}
+              {/* Controls */}
+              <div className="flex-1 flex flex-col items-center gap-2">
+                <div className="flex items-center gap-6">
+                  <button className="text-gray-400 hover:text-iskcon-orange transition-colors hidden sm:block"><FaStepBackward /></button>
+                  <button 
+                    onClick={() => handlePlay(currentAudio)}
+                    className="w-12 h-12 rounded-full bg-iskcon-orange text-white shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
+                  >
+                    {isPlaying ? <FaPause /> : <FaPlay className="ml-1" />}
+                  </button>
+                  <button className="text-gray-400 hover:text-iskcon-orange transition-colors hidden sm:block"><FaStepForward /></button>
                 </div>
-                <h3 className="font-bold text-lg mb-2 text-gray-800">{category.name}</h3>
-                <p className="text-gray-600 text-sm mb-4">{category.description}</p>
-                <span className="text-iskcon-orange font-medium text-sm hover:underline cursor-pointer">
-                  Browse {category.count} audios →
-                </span>
+                <div className="w-full flex items-center gap-3">
+                  <span className="text-[10px] font-bold text-gray-400 w-8">0:00</span>
+                  <input 
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={progress}
+                    onChange={handleProgressChange}
+                    className="flex-1 h-1.5 bg-gray-100 rounded-full appearance-none cursor-pointer accent-iskcon-orange"
+                  />
+                  <span className="text-[10px] font-bold text-gray-400 w-8">{currentAudio.duration}</span>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* Popular series section */}
-      <section className="py-12 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">Popular Series</h2>
-          
-          <div className="overflow-x-auto">
-            <div className="inline-flex space-x-6 min-w-full py-4 px-2">
-              {Array(5).fill(0).map((_, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden min-w-[280px] hover:shadow-lg transition-shadow flex-shrink-0 border border-gray-100">
-                  <div className="relative h-40 bg-iskcon-orange/10">
-                    <Image
-                      src={`/images/audio-series-${index + 1}.jpg`}
-                      alt={`Audio Series ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-bold mb-1 text-gray-800">Bhagavad Gita Chapter {index + 1}</h3>
-                    <p className="text-gray-600 text-sm mb-2">By Srila Prabhupada</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-gray-500">{10 + index} episodes</span>
-                      <button className="bg-iskcon-orange text-white text-xs px-3 py-1 rounded-full hover:bg-iskcon-orange-dark transition">
-                        Listen
-                      </button>
-                    </div>
-                  </div>
+              {/* Volume & Extras */}
+              <div className="hidden lg:flex items-center gap-4 w-1/4 justify-end">
+                <div className="flex items-center gap-2">
+                  <FaVolumeUp className="text-gray-400" />
+                  <input 
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={volume}
+                    onChange={(e) => {
+                      const v = parseFloat(e.target.value);
+                      setVolume(v);
+                      if (audioRef.current) audioRef.current.volume = v;
+                    }}
+                    className="w-20 h-1 bg-gray-100 rounded-full appearance-none cursor-pointer accent-iskcon-orange"
+                  />
                 </div>
-              ))}
+                <button className="text-gray-400 hover:text-iskcon-orange" onClick={() => setCurrentAudio(null)}><FaTimes /></button>
+              </div>
             </div>
-          </div>
-          
-          <div className="text-center mt-8">
-            <button className="bg-iskcon-orange text-white px-6 py-2 rounded-full hover:bg-iskcon-orange-dark transition">
-              View All Series
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Newsletter section */}
-      <section className="py-12 bg-iskcon-saffron/10">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto bg-white rounded-xl p-8 shadow-md">
-            <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">Stay Updated</h2>
-            <p className="text-gray-600 text-center mb-6">
-              Subscribe to receive notifications about new audio uploads and featured content.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="email"
-                placeholder="Your email address"
-                className="flex-1 px-4 py-2 border border-gray-300 bg-white text-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-iskcon-orange"
-              />
-              <button className="bg-iskcon-orange text-white px-6 py-2 rounded-lg hover:bg-iskcon-orange-dark transition sm:w-auto w-full">
-                Subscribe
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
-} 
+}
