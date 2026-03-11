@@ -55,7 +55,6 @@ const navigation = [
       { name: 'Books', href: '/resources/books' },
       { name: 'Audio & Podcasts', href: '/resources/audio' },
       { name: 'Videos', href: '/resources/videos' },
-      { name: 'Articles', href: '/resources/articles' },
       { name: 'Photo Gallery', href: '/resources/gallery' }
     ]
   },
@@ -66,8 +65,7 @@ const navigation = [
     submenu: [
       { name: 'Become a Member', href: '/get-involved/membership' },
       { name: 'Volunteer', href: '/get-involved/volunteer' },
-      { name: 'Donate', href: '/donate' },
-      { name: 'Events', href: '/events' }
+      { name: 'Donate', href: '/donate' }
     ]
   },
   { name: 'Store', href: '/store', icon: <FaShoppingCart className="mr-2" /> }
@@ -173,13 +171,13 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Donate Button */}
+          {/* Right side buttons */}
           <div className="hidden lg:flex items-center space-x-3">
-            <Link href="/auth/login" className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-iskcon-orange">
+            <Link
+              href="/admin/login"
+              className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-full hover:border-iskcon-orange hover:text-iskcon-orange transition-colors"
+            >
               Login
-            </Link>
-            <Link href="/auth/signup" className="px-4 py-2 text-sm font-medium bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200">
-              Sign Up
             </Link>
             <Link href="/donate" className="btn-primary">
               Donate
@@ -266,18 +264,11 @@ export default function Navbar() {
               ))}
               <div className="py-4 space-y-3">
                 <Link
-                  href="/auth/login"
-                  className="block py-2 text-black hover:text-iskcon-orange"
+                  href="/admin/login"
+                  className="block py-2 text-gray-700 font-medium hover:text-iskcon-orange transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Login
-                </Link>
-                <Link
-                  href="/auth/signup"
-                  className="block py-2 text-black hover:text-iskcon-orange"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Sign Up
                 </Link>
                 <Link
                   href="/donate"

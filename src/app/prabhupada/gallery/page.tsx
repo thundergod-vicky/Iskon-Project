@@ -1,230 +1,211 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
-import { motion } from 'framer-motion';
-import { FaSearch, FaFilter, FaTimes, FaDownload, FaShare } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaSearch, FaFilter, FaTimes, FaCameraRetro, FaDownload, FaShare } from 'react-icons/fa';
 
-// Updated gallery data with correct image paths and more images
 const galleryItems = [
-  {
-    id: 1,
-    title: 'Srila Prabhupada - ISKCON Founder-Acharya',
-    image: '/images/prabhupada/founder-acharya.jpg',
-    category: 'Historical',
-    year: '1971',
-    description: 'His Divine Grace A.C. Bhaktivedanta Swami Prabhupada, the Founder-Acharya of ISKCON.'
-  },
-  {
-    id: 2,
-    title: 'ISKCON Temple Architecture',
-    image: '/images/iskcon-temple-dome.jpg',
-    category: 'Temples',
-    year: '1972',
-    description: 'The beautiful architecture of ISKCON temples, representing Vedic culture and spirituality.'
-  },
-  {
-    id: 3,
-    title: 'Krishna Temple',
-    image: '/images/krishna-temple.jpg',
-    category: 'Temples',
-    year: '1970',
-    description: 'The magnificent Krishna temple, a spiritual haven for devotees.'
-  },
-  {
-    id: 4,
-    title: 'Ratha Yatra Festival',
-    image: '/images/events/ratha-yatra-festival.jpg',
-    category: 'Festivals',
-    year: '1973',
-    description: 'The grand Ratha Yatra festival, celebrating Lord Jagannath\'s journey.'
-  },
-  {
-    id: 5,
-    title: 'Janmashtami Celebration',
-    image: '/images/events/janmashtami-celebration.jpg',
-    category: 'Festivals',
-    year: '1974',
-    description: 'Devotees celebrating Janmashtami, the divine appearance day of Lord Krishna.'
-  },
-  {
-    id: 6,
-    title: 'Gaura Purnima Festival',
-    image: '/images/events/gaura-purnima-festival.jpg',
-    category: 'Festivals',
-    year: '1975',
-    description: 'Celebrating Gaura Purnima, the appearance day of Lord Chaitanya Mahaprabhu.'
-  }
+    {
+        id: 1,
+        title: 'Founder-Acharya',
+        image: '/images/gallery/devotees-serving.jpg',
+        category: 'Historical',
+        year: '1971',
+        description: 'His Divine Grace A.C. Bhaktivedanta Swami Prabhupada.'
+    },
+    {
+        id: 2,
+        title: 'Temple Architecture',
+        image: '/images/gallery/temple-view.jpg',
+        category: 'Temples',
+        year: '1972',
+        description: 'The beautiful architecture of ISKCON temples.'
+    },
+    {
+        id: 3,
+        title: 'Krishna Temple',
+        image: '/images/history-of-iskcon.jpg',
+        category: 'Temples',
+        year: '1970',
+        description: 'The magnificent Krishna temple.'
+    },
+    {
+        id: 4,
+        title: 'Ratha Yatra Festival',
+        image: '/images/gallery/devotees-serving.jpg',
+        category: 'Festivals',
+        year: '1973',
+        description: 'The grand Ratha Yatra festival.'
+    },
+    {
+        id: 5,
+        title: 'Janmashtami Celebration',
+        image: '/images/gallery/temple-view.jpg',
+        category: 'Festivals',
+        year: '1974',
+        description: 'Devotees celebrating Janmashtami.'
+    },
+    {
+        id: 6,
+        title: 'Gaura Purnima',
+        image: '/images/history-of-iskcon.jpg',
+        category: 'Festivals',
+        year: '1975',
+        description: 'Celebrating Gaura Purnima.'
+    }
 ];
 
 const categories = ['All', 'Historical', 'Temples', 'Festivals'];
-const decades = ['All', '1970s'];
 
 export default function PrabhupadaGallery() {
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [selectedDecade, setSelectedDecade] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedImage, setSelectedImage] = useState<number | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState('All');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedImage, setSelectedImage] = useState<number | null>(null);
 
-  const filteredImages = galleryItems.filter(item => {
-    const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
-    const matchesDecade = selectedDecade === 'All' || item.year.startsWith(selectedDecade.slice(0, 3));
-    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesDecade && matchesSearch;
-  });
+    const filteredImages = galleryItems.filter(item => {
+        const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
+        const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || item.description.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+    });
 
-  return (
-    <main className="min-h-screen pt-20">
-      {/* Hero Section */}
-      <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">          <Image
-            src="/images/srila-prabhupada.jpg"
-            alt="Srila Prabhupada"
-            fill
-            className="object-cover brightness-50"
-          />
-        </div>
-        <div className="container mx-auto px-4 relative z-10 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Srila Prabhupada Gallery
-          </h1>
-          <p className="text-xl text-white/90 max-w-2xl mx-auto">
-            A collection of precious moments capturing the divine journey of His Divine Grace A.C. Bhaktivedanta Swami Prabhupada
-          </p>
-        </div>
-      </section>
-
-      {/* Filters Section */}
-      <section className="sticky top-16 z-20 bg-white shadow-md py-4">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="relative w-full md:w-96">
-              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search gallery..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-iskcon-orange"
-              />
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              <div className="flex items-center space-x-2">
-                <FaFilter className="text-gray-400" />
-                <span className="text-sm text-gray-600">Category:</span>
-                {categories.map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    className={`px-3 py-1 rounded-full text-sm transition-colors ${
-                      selectedCategory === category
-                        ? 'bg-iskcon-orange text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-iskcon-orange/10'
-                    }`}
-                  >
-                    {category}
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">Decade:</span>
-                {decades.map((decade) => (
-                  <button
-                    key={decade}
-                    onClick={() => setSelectedDecade(decade)}
-                    className={`px-3 py-1 rounded-full text-sm transition-colors ${
-                      selectedDecade === decade
-                        ? 'bg-iskcon-orange text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-iskcon-orange/10'
-                    }`}
-                  >
-                    {decade}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Gallery Grid */}
-      <section className="py-8">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredImages.map((item) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="group relative overflow-hidden rounded-lg shadow-lg cursor-pointer"
-                onClick={() => setSelectedImage(item.id)}
-              >
-                <div className="relative aspect-[4/3]">
-                  <Image
-                    src={item.image}
-                    alt={item.title}
-                    fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                      <h3 className="text-lg font-bold">{item.title}</h3>
-                      <p className="text-sm text-white/80">{item.year}</p>
-                    </div>
-                  </div>
+    return (
+        <main className="min-h-screen bg-gray-50 pb-20">
+            {/* Hero Section */}
+            <section className="relative pt-32 pb-24 overflow-hidden bg-gray-900 border-b-8 border-orange-500">
+                <div className="absolute inset-0 z-0">
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent mix-blend-multiply" />
+                    <img src="/images/gallery/devotees-serving.jpg" alt="Gallery" className="w-full h-full object-cover opacity-20 grayscale" />
                 </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+                <div className="container mx-auto px-4 relative z-10 text-center">
+                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-3xl mx-auto">
+                        <span className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-white/10 text-white font-bold mb-6 tracking-wider shadow-inner backdrop-blur-md border border-white/20">
+                            <FaCameraRetro /> Photo Archives
+                        </span>
+                        <h1 className="text-4xl md:text-6xl font-black text-white mb-6 drop-shadow-lg">
+                            Visual <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">History</span>
+                        </h1>
+                        <p className="text-xl text-gray-400 font-light">
+                            Rare and historical photographs from the early days of the Hare Krishna movement.
+                        </p>
+                    </motion.div>
+                </div>
+            </section>
 
-      {/* Lightbox */}
-      {selectedImage && (
-        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center">
-          <button
-            className="absolute top-4 right-4 text-white text-2xl hover:text-iskcon-orange"
-            onClick={() => setSelectedImage(null)}
-          >
-            <FaTimes />
-          </button>
-          
-          <div className="max-w-4xl mx-auto p-4">
-            <div className="relative aspect-[4/3] w-full">
-              {galleryItems.find(item => item.id === selectedImage) && (
-                <Image
-                  src={galleryItems.find(item => item.id === selectedImage)!.image}
-                  alt={galleryItems.find(item => item.id === selectedImage)!.title}
-                  fill
-                  className="object-contain"
-                />
-              )}
+            <div className="container mx-auto px-4 -mt-8 relative z-20">
+                {/* Search & Filter Bar */}
+                <div className="bg-white rounded-3xl p-6 shadow-xl border border-gray-100 max-w-5xl mx-auto mb-12 flex flex-col md:flex-row gap-6 items-center justify-between">
+                    <div className="relative w-full md:w-96">
+                        <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <input 
+                            type="text" 
+                            placeholder="Search photographs..." 
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-12 pr-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all font-medium text-gray-700"
+                        />
+                    </div>
+                    
+                    <div className="flex flex-wrap items-center gap-2 bg-gray-50 p-2 rounded-2xl border border-gray-200">
+                        <FaFilter className="text-gray-400 ml-2 mr-2" />
+                        {categories.map((cat) => (
+                            <button
+                                key={cat}
+                                onClick={() => setSelectedCategory(cat)}
+                                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${selectedCategory === cat ? 'bg-orange-500 text-white shadow-md' : 'text-gray-500 hover:bg-gray-200 hover:text-gray-800'}`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Masonry-style Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                    <AnimatePresence>
+                        {filteredImages.map((item, idx) => (
+                            <motion.div 
+                                layout
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                transition={{ duration: 0.3, delay: idx * 0.05 }}
+                                key={item.id} 
+                                onClick={() => setSelectedImage(item.id)}
+                                className="group cursor-pointer bg-white rounded-3xl p-3 shadow-md hover:shadow-2xl border border-gray-100 transition-all duration-300"
+                            >
+                                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-4 bg-gray-100">
+                                    <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 grayscale group-hover:grayscale-0" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                                        <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white mb-2 ml-auto"><FaSearch /></div>
+                                    </div>
+                                    <div className="absolute top-4 left-4 font-black uppercase text-xs tracking-widest bg-orange-500 text-white py-1 px-3 rounded-lg shadow-lg">
+                                        {item.year}
+                                    </div>
+                                </div>
+                                <div className="px-3 pb-3">
+                                    <p className="text-orange-500 text-xs font-bold uppercase tracking-widest mb-1">{item.category}</p>
+                                    <h3 className="text-lg font-black text-gray-900">{item.title}</h3>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </div>
+                
+                {filteredImages.length === 0 && (
+                    <div className="text-center py-20">
+                        <div className="text-6xl text-gray-200 mb-4 inline-block"><FaCameraRetro /></div>
+                        <h3 className="text-2xl font-bold text-gray-400">No photographs found.</h3>
+                    </div>
+                )}
             </div>
-            <div className="mt-4 text-white">
-              <h2 className="text-2xl font-bold">
-                {galleryItems.find(item => item.id === selectedImage)?.title}
-              </h2>
-              <p className="text-white/80 mt-2">
-                {galleryItems.find(item => item.id === selectedImage)?.description}
-              </p>
-              <div className="flex space-x-4 mt-4">
-                <button className="flex items-center space-x-2 text-white/80 hover:text-white">
-                  <FaDownload />
-                  <span>Download</span>
-                </button>
-                <button className="flex items-center space-x-2 text-white/80 hover:text-white">
-                  <FaShare />
-                  <span>Share</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </main>
-  );
+
+            {/* Lightbox Modal */}
+            <AnimatePresence>
+                {selectedImage && (
+                    <motion.div 
+                        initial={{ opacity: 0 }} 
+                        animate={{ opacity: 1 }} 
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8"
+                    >
+                        <div className="absolute inset-0 bg-black/95 backdrop-blur-sm" onClick={() => setSelectedImage(null)} />
+                        
+                        <button onClick={() => setSelectedImage(null)} className="absolute top-6 right-6 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white text-xl transition-colors z-[60]">
+                            <FaTimes />
+                        </button>
+
+                        {galleryItems.find(img => img.id === selectedImage) && (
+                            <motion.div 
+                                initial={{ scale: 0.95, y: 20 }}
+                                animate={{ scale: 1, y: 0 }}
+                                exit={{ scale: 0.95, y: 20 }}
+                                className="relative z-10 w-full max-w-5xl bg-gray-900 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col md:flex-row border border-gray-800"
+                            >
+                                <div className="w-full md:w-2/3 bg-black aspect-video md:aspect-auto relative flex items-center justify-center p-4">
+                                    <img src={galleryItems.find(img => img.id === selectedImage)!.image} alt="Preview" className="max-w-full max-h-[70vh] object-contain rounded-xl" />
+                                </div>
+                                <div className="w-full md:w-1/3 p-8 md:p-10 flex flex-col border-t md:border-t-0 md:border-l border-gray-800 bg-gray-900">
+                                    <div className="inline-block py-1 px-3 bg-orange-500/20 text-orange-400 font-bold uppercase text-xs tracking-widest rounded-lg mb-4 w-fit">
+                                        {galleryItems.find(img => img.id === selectedImage)!.year}
+                                    </div>
+                                    <h2 className="text-3xl font-black text-white mb-2">{galleryItems.find(img => img.id === selectedImage)!.title}</h2>
+                                    <p className="text-orange-500 font-bold text-sm uppercase tracking-widest mb-6">{galleryItems.find(img => img.id === selectedImage)!.category}</p>
+                                    <p className="text-gray-400 leading-relaxed text-lg mb-8 flex-grow">{galleryItems.find(img => img.id === selectedImage)!.description}</p>
+                                    
+                                    <div className="flex gap-4 mt-auto">
+                                        <button className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+                                            <FaDownload /> Download
+                                        </button>
+                                        <button className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+                                            <FaShare /> Share
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </main>
+    );
 }

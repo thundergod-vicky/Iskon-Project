@@ -10,7 +10,7 @@ export default function PrabhupadaPage() {
   return (
     <main className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative h-[60vh] flex items-center justify-center text-white">
+      <section className="relative py-4 flex items-center justify-center text-white">
         <div className="absolute inset-0 z-0">
           <Image
             src="/images/srila-prabhupada.jpg"
@@ -72,7 +72,7 @@ export default function PrabhupadaPage() {
               <div className="flex">
                 <FaQuoteLeft className="text-4xl text-iskcon-orange opacity-40 mr-4 flex-shrink-0" />
                 <blockquote className="text-xl italic text-gray-700">
-                  "The spiritual master opens our eyes, blinded by the darkness of ignorance, with the torch of knowledge."
+                  &quot;The spiritual master opens our eyes, blinded by the darkness of ignorance, with the torch of knowledge.&quot;
                   <footer className="text-right text-gray-600 text-base mt-2">— Mundaka Upanishad 1.2.9, often quoted by Srila Prabhupada</footer>
                 </blockquote>
               </div>
@@ -174,7 +174,7 @@ export default function PrabhupadaPage() {
               <ul className="space-y-2 text-gray-600">
                 <li className="flex items-start">
                   <span className="text-iskcon-orange mr-2">•</span>
-                  <span>Translated and elaborately commented on over 80 volumes of India's most important sacred texts</span>
+                  <span>Translated and elaborately commented on over 80 volumes of India&apos;s most important sacred texts</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-iskcon-orange mr-2">•</span>
@@ -236,11 +236,11 @@ export default function PrabhupadaPage() {
               <ul className="space-y-2 text-gray-600">
                 <li className="flex items-start">
                   <span className="text-iskcon-orange mr-2">•</span>
-                  <span>Founded Bhaktivedanta Book Trust, now the world's largest publisher of Vedic literature</span>
+                  <span>Founded Bhaktivedanta Book Trust, now the world&apos;s largest publisher of Vedic literature</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-iskcon-orange mr-2">•</span>
-                  <span>Established Gurukula educational system for children's spiritual and academic education</span>
+                  <span>Established Gurukula educational system for children&apos;s spiritual and academic education</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-iskcon-orange mr-2">•</span>
@@ -296,7 +296,7 @@ export default function PrabhupadaPage() {
             <div className="bg-white p-6 rounded-lg shadow-md">
               <FaQuoteLeft className="text-4xl text-iskcon-orange opacity-40 mb-4" />
               <blockquote className="text-lg italic text-gray-700 mb-4">
-                "The human body is a rare opportunity, not to be wasted in pursuit of sense gratification but to be used to achieve the highest perfection of life: revival of our dormant Krishna consciousness."
+                &quot;The human body is a rare opportunity, not to be wasted in pursuit of sense gratification but to be used to achieve the highest perfection of life: revival of our dormant Krishna consciousness.&quot;
               </blockquote>
               <footer className="text-right text-gray-600">— Srila Prabhupada</footer>
             </div>
@@ -304,7 +304,7 @@ export default function PrabhupadaPage() {
             <div className="bg-white p-6 rounded-lg shadow-md">
               <FaQuoteLeft className="text-4xl text-iskcon-orange opacity-40 mb-4" />
               <blockquote className="text-lg italic text-gray-700 mb-4">
-                "We are not this body. We are spiritual souls, part and parcel of Krishna, and we have an eternal relationship with Him that we must revive."
+                &quot;We are not this body. We are spiritual souls, part and parcel of Krishna, and we have an eternal relationship with Him that we must revive.&quot;
               </blockquote>
               <footer className="text-right text-gray-600">— Srila Prabhupada</footer>
             </div>
@@ -312,7 +312,7 @@ export default function PrabhupadaPage() {
             <div className="bg-white p-6 rounded-lg shadow-md">
               <FaQuoteLeft className="text-4xl text-iskcon-orange opacity-40 mb-4" />
               <blockquote className="text-lg italic text-gray-700 mb-4">
-                "This Krishna consciousness movement is not a fabrication of the mind. It is the science of the relationship between the living entity and the Supreme Personality of Godhead."
+                &quot;This Krishna consciousness movement is not a fabrication of the mind. It is the science of the relationship between the living entity and the Supreme Personality of Godhead.&quot;
               </blockquote>
               <footer className="text-right text-gray-600">— Srila Prabhupada</footer>
             </div>
@@ -320,7 +320,7 @@ export default function PrabhupadaPage() {
             <div className="bg-white p-6 rounded-lg shadow-md">
               <FaQuoteLeft className="text-4xl text-iskcon-orange opacity-40 mb-4" />
               <blockquote className="text-lg italic text-gray-700 mb-4">
-                "Books are the basis, purity is the force, preaching is the essence, utility is the principle."
+                &quot;Books are the basis, purity is the force, preaching is the essence, utility is the principle.&quot;
               </blockquote>
               <footer className="text-right text-gray-600">— Srila Prabhupada</footer>
             </div>
@@ -328,7 +328,7 @@ export default function PrabhupadaPage() {
 
           <div className="text-center">
             <Link href="/prabhupada-books" className="btn-primary">
-              Explore Srila Prabhupada's Books
+              Explore Srila Prabhupada&apos;s Books
             </Link>
           </div>
         </div>

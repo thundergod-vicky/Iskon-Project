@@ -1,545 +1,302 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
-import { FaHandHoldingHeart, FaRegCreditCard, FaPaypal, FaRegQuestionCircle, FaShieldAlt, FaRegCalendarAlt } from 'react-icons/fa';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaHandHoldingHeart, FaLeaf, FaBookOpen, FaUtensils, FaGopuram, FaCreditCard, FaLock, FaCheckCircle } from 'react-icons/fa';
 
-interface DonationOption {
-  id: string;
-  name: string;
-  description: string;
-  amounts: number[];
-  image: string;
-}
-
-const donationOptions: DonationOption[] = [
-  {
-    id: 'temple',
-    name: 'Temple Development',
-    description: 'Support the construction, maintenance, and beautification of ISKCON temples worldwide.',
-    amounts: [501, 1001, 2001, 5001, 10001, 21001],
-    image: '/images/donations/temple-donation.jpg'
-  },
-  {
-    id: 'food',
-    name: 'Food For Life',
-    description: 'Help provide prasadam (sanctified vegetarian food) to those in need around the world.',
-    amounts: [251, 501, 1001, 2501, 5001, 10001],
-    image: '/images/donations/food-donation.jpg'
-  },
-  {
-    id: 'education',
-    name: 'Vedic Education',
-    description: 'Support Vedic educational programs, schools, and scholarships for students.',
-    amounts: [501, 1001, 2001, 5001, 10001, 21001],
-    image: '/images/donations/education-donation.jpg'
-  },
-  {
-    id: 'books',
-    name: 'Book Distribution',
-    description: 'Help distribute Srila Prabhupada\'s books containing timeless Vedic wisdom worldwide.',
-    amounts: [251, 501, 1001, 2501, 5001, 10001],
-    image: '/images/donations/book-donation.jpg'
-  },
-  {
-    id: 'cow',
-    name: 'Cow Protection',
-    description: 'Support our cow protection programs that care for cows throughout their natural lives.',
-    amounts: [1001, 2001, 5001, 11000, 21001, 51001],
-    image: '/images/donations/cow-donation.jpg'
-  }
+const donationOptions = [
+    {
+        id: 'temple',
+        name: 'Temple Development',
+        description: 'Support the construction, maintenance, and beautification of ISKCON Durgapur.',
+        icon: <FaGopuram className="text-3xl" />,
+        color: 'from-orange-500 to-amber-500',
+        bgLight: 'bg-orange-50',
+        border: 'border-orange-200'
+    },
+    {
+        id: 'food',
+        name: 'Food For Life',
+        description: 'Help provide sanctified vegetarian meals (prasadam) to the needy.',
+        icon: <FaUtensils className="text-3xl" />,
+        color: 'from-green-500 to-emerald-500',
+        bgLight: 'bg-green-50',
+        border: 'border-green-200'
+    },
+    {
+        id: 'cow',
+        name: 'Cow Protection',
+        description: 'Support our Goshala in caring for cows throughout their natural lives.',
+        icon: <FaLeaf className="text-3xl" />,
+        color: 'from-amber-500 to-yellow-500',
+        bgLight: 'bg-amber-50',
+        border: 'border-amber-200'
+    },
+    {
+        id: 'books',
+        name: 'Vedic Knowledge',
+        description: 'Distribute Srila Prabhupada\'s books to spread spiritual wisdom.',
+        icon: <FaBookOpen className="text-3xl" />,
+        color: 'from-blue-500 to-cyan-500',
+        bgLight: 'bg-blue-50',
+        border: 'border-blue-200'
+    }
 ];
 
+const presetAmounts = [501, 1001, 2501, 5001, 11000];
+
 export default function DonatePage() {
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
-  const [customAmount, setCustomAmount] = useState<string>('');
-  const [recurring, setRecurring] = useState<boolean>(false);
-  const [donorInfo, setDonorInfo] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
-    country: '',
-    pan: ''
-  });
-  const [paymentMethod, setPaymentMethod] = useState<string>('card');
+    const [selectedOption, setSelectedOption] = useState(donationOptions[0]);
+    const [amount, setAmount] = useState<number | string>(1001);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [step, setStep] = useState(1); // 1 = Amount, 2 = Details, 3 = Success
 
-  const handleOptionSelect = (id: string) => {
-    setSelectedOption(id);
-    setSelectedAmount(null);
-    setCustomAmount('');
-  };
+    const handleNext = (e: React.FormEvent) => {
+        e.preventDefault();
+        setStep(2);
+    };
 
-  const handleDonorInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDonorInfo({
-      ...donorInfo,
-      [e.target.name]: e.target.value
-    });
-  };
+    const handleProcess = (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsProcessing(true);
+        setTimeout(() => {
+            setIsProcessing(false);
+            setStep(3);
+        }, 2000);
+    };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const amount = selectedAmount || (customAmount ? parseInt(customAmount) : 0);
-    if (!selectedOption || amount <= 0 || !donorInfo.name || !donorInfo.email) {
-      alert('Please fill all required fields');
-      return;
-    }
-    
-    // In a real app, you would handle payment processing here
-    alert(`Thank you for your ${recurring ? 'recurring' : 'one-time'} donation of ₹${amount} to ${donationOptions.find(opt => opt.id === selectedOption)?.name}!`);
-  };
-
-  return (
-    <div className="min-h-screen bg-pink-50">
-      {/* Hero Section */}
-      <section className="relative py-20 px-4 md:px-8 text-center bg-gradient-to-r from-orange-500 to-pink-500">
-        <div className="absolute inset-0 opacity-20">
-          <Image 
-            src="/images/krishna-temple.jpg" 
-            alt="Temple Background" 
-            fill 
-            className="object-cover"
-            priority
-          />
-        </div>
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Support the Mission of Lord Krishna</h1>
-            <p className="text-lg md:text-xl text-white opacity-90 mb-6">
-              Your generous contribution helps spread Krishna consciousness and serve communities worldwide.
-            </p>
-            <div className="flex justify-center">
-              <div className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-white text-orange-600 font-semibold shadow-lg">
-                <FaHandHoldingHeart className="mr-2" />
-                Donate Today
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 py-12 md:py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Donation Options */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Select a Cause</h2>
-              <div className="space-y-3">
-                {donationOptions.map((option) => (
-                  <div 
-                    key={option.id}
-                    className={`p-4 rounded-lg cursor-pointer transition-all duration-200 ${
-                      selectedOption === option.id 
-                        ? 'bg-orange-100 border-2 border-orange-500' 
-                        : 'bg-gray-50 hover:bg-orange-50 border-2 border-transparent'
-                    }`}
-                    onClick={() => handleOptionSelect(option.id)}
-                  >
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 relative overflow-hidden rounded-full mr-3">
-                        <Image 
-                          src={option.image} 
-                          alt={option.name}
-                          width={40}
-                          height={40}
-                          className="object-cover"
-                        />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gray-900">{option.name}</h3>
-                        <p className="text-sm text-gray-600 line-clamp-2">{option.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">Why Donate?</h2>
-              <ul className="space-y-3 text-gray-700">
-                <li className="flex items-start">
-                  <div className="shrink-0 mt-1 text-orange-500">•</div>
-                  <p className="ml-2">Support spiritual knowledge distribution</p>
-                </li>
-                <li className="flex items-start">
-                  <div className="shrink-0 mt-1 text-orange-500">•</div>
-                  <p className="ml-2">Help feed millions through Food for Life</p>
-                </li>
-                <li className="flex items-start">
-                  <div className="shrink-0 mt-1 text-orange-500">•</div>
-                  <p className="ml-2">Preserve and promote Vedic culture</p>
-                </li>
-                <li className="flex items-start">
-                  <div className="shrink-0 mt-1 text-orange-500">•</div>
-                  <p className="ml-2">Support temple construction and maintenance</p>
-                </li>
-                <li className="flex items-start">
-                  <div className="shrink-0 mt-1 text-orange-500">•</div>
-                  <p className="ml-2">Contribute to cow protection programs</p>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Right Column - Donation Form */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-              <form onSubmit={handleSubmit}>
-                {selectedOption && (
-                  <>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                      {donationOptions.find(opt => opt.id === selectedOption)?.name}
-                    </h2>
-                    
-                    {/* Amount Selection */}
-                    <div className="mb-6">
-                      <h3 className="text-lg font-medium text-gray-800 mb-3">Select Amount*</h3>
-                      <div className="grid grid-cols-3 gap-3 mb-4">
-                        {donationOptions
-                          .find(opt => opt.id === selectedOption)
-                          ?.amounts.map((amount) => (
-                            <button
-                              key={amount}
-                              type="button"
-                              className={`py-2 px-4 rounded-lg border-2 transition-all ${
-                                selectedAmount === amount
-                                  ? 'border-orange-500 bg-orange-50 text-orange-700 font-medium'
-                                  : 'border-gray-200 hover:border-orange-300 hover:bg-orange-50'
-                              }`}
-                              onClick={() => {
-                                setSelectedAmount(amount);
-                                setCustomAmount('');
-                              }}
-                            >
-                              ₹{amount}
-                            </button>
-                          ))}
-                      </div>
-                      <div className="mt-3">
-                        <label className="text-gray-600 text-sm mb-1 block">Custom Amount (₹)</label>
-                        <input
-                          type="number"
-                          placeholder="Enter amount"
-                          value={customAmount}
-                          onChange={(e) => {
-                            setCustomAmount(e.target.value);
-                            setSelectedAmount(null);
-                          }}
-                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Recurring Option */}
-                    <div className="mb-6">
-                      <div className="flex items-center mb-3">
-                        <input
-                          type="checkbox"
-                          id="recurring"
-                          checked={recurring}
-                          onChange={() => setRecurring(!recurring)}
-                          className="w-4 h-4 text-orange-600 rounded focus:ring-orange-500"
-                        />
-                        <label htmlFor="recurring" className="ml-2 text-gray-700 flex items-center">
-                          <FaRegCalendarAlt className="mr-1 text-orange-500" />
-                          Make this a monthly donation
-                        </label>
-                      </div>
-                      {recurring && (
-                        <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-                          Your donation will automatically process monthly until canceled. You can cancel anytime by contacting us.
+    return (
+        <main className="min-h-screen bg-gray-50 pb-20">
+            {/* Hero */}
+            <section className="relative pt-32 pb-24 overflow-hidden bg-gray-900">
+                <div className="absolute inset-0 z-0">
+                    <div className="absolute inset-0 bg-gradient-to-r from-orange-900/90 to-amber-900/80 mix-blend-multiply" />
+                    <img src="/images/gallery/temple-view.jpg" alt="Temple" className="w-full h-full object-cover opacity-30" />
+                </div>
+                <div className="container mx-auto px-4 relative z-10 text-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="max-w-3xl mx-auto"
+                    >
+                        <span className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-orange-500/20 text-orange-300 text-sm font-bold mb-6 border border-orange-500/30">
+                            <FaHandHoldingHeart /> Support the Mission
+                        </span>
+                        <h1 className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
+                            Make a <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-orange-400">Divine Offering</span>
+                        </h1>
+                        <p className="text-xl text-orange-50/90 mb-10 max-w-2xl mx-auto">
+                            "In this age of Kali, the only way to attain spiritual perfection is by giving in charity for the service of the Lord."
                         </p>
-                      )}
-                    </div>
+                    </motion.div>
+                </div>
+            </section>
+
+            <div className="container mx-auto px-4 -mt-16 relative z-20">
+                <div className="max-w-5xl mx-auto bg-white rounded-[2rem] shadow-2xl overflow-hidden flex flex-col md:flex-row">
                     
-                    {/* Donor Information */}
-                    <div className="mb-6">
-                      <h3 className="text-lg font-medium text-gray-800 mb-3">Personal Information</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-gray-600 text-sm mb-1 block">Full Name*</label>
-                          <input
-                            type="text"
-                            name="name"
-                            value={donorInfo.name}
-                            onChange={handleDonorInfoChange}
-                            placeholder="Your full name"
-                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <label className="text-gray-600 text-sm mb-1 block">Email*</label>
-                          <input
-                            type="email"
-                            name="email"
-                            value={donorInfo.email}
-                            onChange={handleDonorInfoChange}
-                            placeholder="Your email address"
-                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <label className="text-gray-600 text-sm mb-1 block">Phone</label>
-                          <input
-                            type="tel"
-                            name="phone"
-                            value={donorInfo.phone}
-                            onChange={handleDonorInfoChange}
-                            placeholder="Your phone number"
-                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-gray-600 text-sm mb-1 block">Country</label>
-                          <input
-                            type="text"
-                            name="country"
-                            value={donorInfo.country}
-                            onChange={handleDonorInfoChange}
-                            placeholder="Your country"
-                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                          />
-                        </div>
-                        <div className="md:col-span-2">
-                          <label className="text-gray-600 text-sm mb-1 block">PAN (For tax benefits in India)</label>
-                          <input
-                            type="text"
-                            name="pan"
-                            value={donorInfo.pan}
-                            onChange={handleDonorInfoChange}
-                            placeholder="PAN number (optional)"
-                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Payment Method */}
-                    <div className="mb-6">
-                      <h3 className="text-lg font-medium text-gray-800 mb-3">Payment Method</h3>
-                      <div className="flex flex-wrap gap-3 mb-4">
-                        <button
-                          type="button"
-                          className={`flex items-center py-2 px-4 rounded-lg border-2 transition-all ${
-                            paymentMethod === 'card'
-                              ? 'border-orange-500 bg-orange-50 text-orange-700 font-medium'
-                              : 'border-gray-200 hover:border-orange-300 hover:bg-orange-50'
-                          }`}
-                          onClick={() => setPaymentMethod('card')}
-                        >
-                          <FaRegCreditCard className="mr-2" />
-                          Credit/Debit Card
-                        </button>
-                        <button
-                          type="button"
-                          className={`flex items-center py-2 px-4 rounded-lg border-2 transition-all ${
-                            paymentMethod === 'upi'
-                              ? 'border-orange-500 bg-orange-50 text-orange-700 font-medium'
-                              : 'border-gray-200 hover:border-orange-300 hover:bg-orange-50'
-                          }`}
-                          onClick={() => setPaymentMethod('upi')}
-                        >
-                          <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M21.41 11.41l-8.83-8.83c-0.39-0.39-1.02-0.39-1.41 0l-8.83 8.83c-0.39 0.39-0.39 1.02 0 1.41l8.83 8.83c0.39 0.39 1.02 0.39 1.41 0l8.83-8.83c0.39-0.38 0.39-1.02 0-1.41z" />
-                          </svg>
-                          UPI
-                        </button>
-                        <button
-                          type="button"
-                          className={`flex items-center py-2 px-4 rounded-lg border-2 transition-all ${
-                            paymentMethod === 'netbanking'
-                              ? 'border-orange-500 bg-orange-50 text-orange-700 font-medium'
-                              : 'border-gray-200 hover:border-orange-300 hover:bg-orange-50'
-                          }`}
-                          onClick={() => setPaymentMethod('netbanking')}
-                        >
-                          <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M4 10v7h16v-7H4zm8 5.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
-                            <path d="M20 6H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm0 12H4v-6h16v6zm0-10H4V8h16v2z"/>
-                          </svg>
-                          NetBanking
-                        </button>
-                        <button
-                          type="button"
-                          className={`flex items-center py-2 px-4 rounded-lg border-2 transition-all ${
-                            paymentMethod === 'paytm'
-                              ? 'border-orange-500 bg-orange-50 text-orange-700 font-medium'
-                              : 'border-gray-200 hover:border-orange-300 hover:bg-orange-50'
-                          }`}
-                          onClick={() => setPaymentMethod('paytm')}
-                        >
-                          <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-                          </svg>
-                          Paytm/PhonePe
-                        </button>
-                      </div>
-                      
-                      {/* Payment Details based on method */}
-                      {paymentMethod === 'card' && (
-                        <div className="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                          <p className="text-sm text-gray-600 mb-2">Enter your card details securely.</p>
-                        </div>
-                      )}
-                      
-                      {paymentMethod === 'upi' && (
-                        <div className="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                          <p className="text-sm text-gray-600">Scan QR code or enter your UPI ID to donate.</p>
-                        </div>
-                      )}
-                      
-                      {paymentMethod === 'netbanking' && (
-                        <div className="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                          <p className="text-sm text-gray-600">Select your bank to proceed with NetBanking.</p>
-                          <div className="grid grid-cols-3 gap-2 mt-3">
-                            {['SBI', 'HDFC', 'ICICI', 'Axis', 'PNB', 'Others'].map(bank => (
-                              <button 
-                                key={bank} 
-                                type="button"
-                                className="text-xs border border-gray-200 p-2 rounded hover:bg-orange-50"
-                              >
-                                {bank}
-                              </button>
+                    {/* Left: Options */}
+                    <div className="w-full md:w-5/12 bg-gray-50 border-r border-gray-100 p-8 lg:p-10">
+                        <h2 className="text-xl font-bold text-gray-800 mb-6">Select a Cause</h2>
+                        <div className="space-y-4">
+                            {donationOptions.map(opt => (
+                                <motion.div
+                                    key={opt.id}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => setSelectedOption(opt)}
+                                    className={`cursor-pointer p-4 rounded-2xl border-2 transition-all duration-200 flex items-center gap-4 ${
+                                        selectedOption.id === opt.id 
+                                            ? `${opt.border} ${opt.bgLight} shadow-sm` 
+                                            : 'border-transaprent bg-white hover:border-gray-200'
+                                    }`}
+                                >
+                                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br ${opt.color} text-white shadow-md`}>
+                                        {opt.icon}
+                                    </div>
+                                    <div>
+                                        <h3 className={`font-bold ${selectedOption.id === opt.id ? 'text-gray-900' : 'text-gray-700'}`}>{opt.name}</h3>
+                                        <p className="text-xs text-gray-500 line-clamp-1">{opt.description}</p>
+                                    </div>
+                                    {selectedOption.id === opt.id && (
+                                        <FaCheckCircle className="ml-auto text-lg shrink-0 delay-100 ease-out transition-all animate-in zoom-in-50 text-orange-500" />
+                                    )}
+                                </motion.div>
                             ))}
-                          </div>
                         </div>
-                      )}
-                      
-                      {paymentMethod === 'paytm' && (
-                        <div className="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                          <p className="text-sm text-gray-600">You will be redirected to Paytm/PhonePe to complete your payment.</p>
+                    </div>
+
+                    {/* Right: Payment Forms */}
+                    <div className="w-full md:w-7/12 p-8 lg:p-12 relative min-h-[500px]">
+                        <AnimatePresence mode="wait">
+                            {step === 1 && (
+                                <motion.div
+                                    key="step1"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    className="h-full flex flex-col"
+                                >
+                                    <div>
+                                        <h2 className="text-sm font-bold text-orange-500 tracking-wider uppercase mb-1">{selectedOption.name}</h2>
+                                        <h3 className="text-3xl font-black text-gray-900 mb-2">Choose Amount</h3>
+                                        <p className="text-gray-500 mb-8">{selectedOption.description}</p>
+                                    </div>
+                                    
+                                    <form onSubmit={handleNext} className="flex-1 flex flex-col">
+                                        <div className="grid grid-cols-3 gap-3 mb-6">
+                                            {presetAmounts.map(val => (
+                                                <button
+                                                    key={val}
+                                                    type="button"
+                                                    onClick={() => setAmount(val)}
+                                                    className={`py-4 rounded-2xl font-bold transition-all ${
+                                                        amount === val 
+                                                            ? 'bg-gray-900 text-white shadow-lg' 
+                                                            : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-100'
+                                                    }`}
+                                                >
+                                                    ₹{val}
+                                                </button>
+                                            ))}
+                                            <div className="col-span-3 relative mt-2">
+                                                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</div>
+                                                <input
+                                                    type="number"
+                                                    className="w-full pl-10 pr-6 py-5 bg-white border-2 border-gray-100 rounded-2xl font-bold text-xl text-gray-800 focus:border-orange-500 focus:ring-0 outline-none transition-all shadow-sm"
+                                                    placeholder="Custom Amount"
+                                                    value={amount}
+                                                    onChange={e => setAmount(Number(e.target.value) || '')}
+                                                    min="1"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <button 
+                                            type="submit"
+                                            disabled={!amount || amount < 1}
+                                            className="mt-auto w-full py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all disabled:opacity-50 disabled:transform-none text-lg flex items-center justify-center gap-2"
+                                        >
+                                            Proceed to Donate ₹{amount || 0}
+                                        </button>
+                                    </form>
+                                </motion.div>
+                            )}
+
+                            {step === 2 && (
+                                <motion.div
+                                    key="step2"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    className="h-full flex flex-col"
+                                >
+                                    <button onClick={() => setStep(1)} className="text-sm font-bold text-gray-400 hover:text-gray-800 mb-6 flex items-center gap-1 transition-colors">
+                                        ← Back to amount
+                                    </button>
+                                    
+                                    <h3 className="text-3xl font-black text-gray-900 mb-8">Your Details</h3>
+                                    
+                                    <form onSubmit={handleProcess} className="flex-1 flex flex-col space-y-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-1 block">First Name</label>
+                                                <input type="text" required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:bg-white transition-all font-medium text-gray-800" />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-1 block">Last Name</label>
+                                                <input type="text" required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:bg-white transition-all font-medium text-gray-800" />
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-1 block">Email Address</label>
+                                            <input type="email" required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:bg-white transition-all font-medium text-gray-800" />
+                                        </div>
+
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-500 uppercase ml-1 mb-1 block">PAN Number (For 80G Tax Exemption)</label>
+                                            <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:bg-white transition-all font-medium text-gray-800 uppercase" placeholder="ABCDE1234F" />
+                                        </div>
+                                        
+                                        <div className="pt-4 mt-auto">
+                                            <div className="flex items-center gap-2 mb-4 text-xs font-bold text-gray-400 justify-center">
+                                                <FaLock /> 256-bit Secure Checkout
+                                            </div>
+                                            <button 
+                                                type="submit"
+                                                disabled={isProcessing}
+                                                className="w-full py-5 bg-gray-900 text-white font-black rounded-xl shadow-lg hover:shadow-xl hover:bg-black hover:-translate-y-1 transition-all disabled:opacity-70 disabled:transform-none flex items-center justify-center gap-2"
+                                            >
+                                                {isProcessing ? (
+                                                    <span className="flex items-center gap-2">
+                                                        <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                                                        Processing Securely...
+                                                    </span>
+                                                ) : (
+                                                    <>Pay ₹{amount} <FaCreditCard /></>
+                                                )}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </motion.div>
+                            )}
+
+                            {step === 3 && (
+                                <motion.div
+                                    key="step3"
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="h-full flex flex-col items-center justify-center text-center py-10"
+                                >
+                                    <div className="w-24 h-24 bg-green-100 text-green-500 rounded-full flex items-center justify-center text-5xl mb-6 shadow-inner mx-auto">
+                                        <FaCheckCircle />
+                                    </div>
+                                    <h3 className="text-3xl font-black text-gray-900 mb-2">Donation Successful</h3>
+                                    <p className="text-gray-500 mb-8 max-w-sm mx-auto">
+                                        Thank you for your generous contribution of ₹{amount} towards {selectedOption.name}. May Lord Krishna bless you eternally!
+                                    </p>
+                                    <div className="bg-gray-50 rounded-2xl p-6 w-full max-w-sm mb-8">
+                                        <p className="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Receipt Number</p>
+                                        <p className="text-lg font-mono font-bold text-gray-800 mb-4">TXN-{Math.floor(Math.random() * 1000000000)}</p>
+                                        <p className="text-sm text-gray-500">
+                                            Your 80G tax exemption receipt has been heavily sent to your email.
+                                        </p>
+                                    </div>
+                                    <button 
+                                        onClick={() => { setStep(1); setAmount(1001); }}
+                                        className="font-bold text-orange-500 hover:text-orange-600 transition-colors"
+                                    >
+                                        Make another donation
+                                    </button>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                </div>
+
+                {/* Info blocks below */}
+                <div className="max-w-5xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-orange-100 flex gap-4">
+                        <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center shrink-0 text-xl">
+                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clipRule="evenodd" /></svg>
                         </div>
-                      )}
+                        <div>
+                            <h4 className="font-bold text-gray-900 mb-1">100% Secure Payments</h4>
+                            <p className="text-sm text-gray-500">All transactions are encrypted with 256-bit SSL technology. Your bank details are never stored on our servers.</p>
+                        </div>
                     </div>
-                    
-                    {/* Submit Button */}
-                    <div className="mt-6">
-                      <button
-                        type="submit"
-                        className="w-full py-3 px-4 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-4 focus:ring-orange-300"
-                      >
-                        Complete Donation
-                      </button>
-                      <p className="text-xs text-center text-gray-500 mt-2">
-                        By donating, you agree to our Terms of Service and Privacy Policy.
-                      </p>
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-teal-100 flex gap-4">
+                        <div className="w-12 h-12 bg-teal-100 text-teal-600 rounded-xl flex items-center justify-center shrink-0 text-xl">
+                            <span className="font-black">80G</span>
+                        </div>
+                        <div>
+                            <h4 className="font-bold text-gray-900 mb-1">Tax Benefits Available</h4>
+                            <p className="text-sm text-gray-500">Donations made are eligible for income tax exemption under Section 80G of the Indian Income Tax Act.</p>
+                        </div>
                     </div>
-                  </>
-                )}
-                
-                {!selectedOption && (
-                  <div className="p-10 text-center">
-                    <h3 className="text-lg text-gray-600 mb-3">Please select a cause to support</h3>
-                    <span className="inline-block animate-bounce bg-orange-100 rounded-full p-3 text-orange-500">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                      </svg>
-                    </span>
-                  </div>
-                )}
-              </form>
+                </div>
             </div>
-            
-            {/* Transparency Section */}
-            <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-              <div className="flex items-center mb-4">
-                <FaShieldAlt className="text-orange-500 text-xl mr-2" />
-                <h2 className="text-xl font-bold text-gray-800">Transparency Promise</h2>
-              </div>
-              <p className="text-gray-700 mb-4">
-                We are committed to complete transparency in our financial operations. All donations are used as specified, with minimal administrative costs.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                <div className="p-3 bg-orange-50 rounded-lg">
-                  <h4 className="font-medium text-orange-700">Annual Reports</h4>
-                  <p className="text-sm text-gray-600">Published every year</p>
-                </div>
-                <div className="p-3 bg-orange-50 rounded-lg">
-                  <h4 className="font-medium text-orange-700">Financial Audits</h4>
-                  <p className="text-sm text-gray-600">Regular independent reviews</p>
-                </div>
-                <div className="p-3 bg-orange-50 rounded-lg">
-                  <h4 className="font-medium text-orange-700">Project Updates</h4>
-                  <p className="text-sm text-gray-600">Regular donor communications</p>
-                </div>
-              </div>
-            </div>
-            
-            {/* FAQs */}
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <div className="flex items-center mb-4">
-                <FaRegQuestionCircle className="text-orange-500 text-xl mr-2" />
-                <h2 className="text-xl font-bold text-gray-800">Frequently Asked Questions</h2>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-1">Are my donations tax-deductible?</h3>
-                  <p className="text-gray-700 text-sm">Yes, ISKCON is a registered non-profit organization. Donations are tax-deductible as allowed by law in many countries.</p>
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-1">How will my donation be used?</h3>
-                  <p className="text-gray-700 text-sm">Your donation will be used for the specific cause you select. We provide regular updates on our projects and initiatives.</p>
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-1">Can I make an anonymous donation?</h3>
-                  <p className="text-gray-700 text-sm">Yes, you can choose to remain anonymous during the donation process.</p>
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-1">How do I cancel my recurring donation?</h3>
-                  <p className="text-gray-700 text-sm">You can cancel your recurring donation at any time by contacting our donor support team.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Contact Section */}
-      <section className="bg-orange-100 py-12">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">Need Help With Your Donation?</h2>
-          <p className="text-gray-700 mb-6">
-            Our dedicated support team is here to assist you with any questions about donations.
-          </p>
-          <div className="inline-flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <a href="mailto:donate@iskcon.org.in" className="px-6 py-3 bg-white text-orange-600 rounded-lg shadow-md hover:bg-orange-50 transition-colors">
-              donate@iskcon.org.in
-            </a>
-            <a href="tel:+911234567890" className="px-6 py-3 bg-white text-orange-600 rounded-lg shadow-md hover:bg-orange-50 transition-colors">
-              +91 (1234) 567-890
-            </a>
-          </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto">
-            <h3 className="text-xl font-bold text-gray-800 mb-3">Tax Benefits for Indian Donors</h3>
-            <p className="text-gray-600 mb-4">
-              Contributions to ISKCON qualify for tax exemption under Section 80G of the Income Tax Act, 1961. 
-              You will receive a donation receipt that can be used for claiming tax benefits.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div className="bg-gray-50 p-3 rounded border border-gray-200">
-                <p className="font-medium text-gray-800">80G Registration No:</p>
-                <p className="text-gray-600">AAAT10384G/80G/2019-20/A/10010</p>
-              </div>
-              <div className="bg-gray-50 p-3 rounded border border-gray-200">
-                <p className="font-medium text-gray-800">PAN:</p>
-                <p className="text-gray-600">AAAT10384G</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-} 
+        </main>
+    );
+}
