@@ -38,8 +38,11 @@ const navigation = [
     icon: <FaBook className="mr-2" />,
     submenu: [
       { name: 'Daily Worship', href: '/spiritual-life/daily-worship' },
+      { name: 'Sadhana Tracker', href: '/spiritual-life/sadhana' },
       { name: 'Festivals', href: '/spiritual-life/festivals' },
-      { name: 'Courses', href: '/courses' },
+      { name: 'All Courses', href: '/courses' },
+      { name: 'Upcoming Courses', href: '/courses/upcoming' },
+      { name: 'Completed Courses', href: '/courses/completed' },
       { name: 'Spiritual Tours', href: '/spiritual-tours' },
       { name: 'Prasadam', href: '/prasadam' }
     ]
@@ -52,7 +55,6 @@ const navigation = [
       { name: 'Books', href: '/resources/books' },
       { name: 'Audio & Podcasts', href: '/resources/audio' },
       { name: 'Videos', href: '/resources/videos' },
-      { name: 'Quotes', href: '/resources/prabhupada-quotes' },
       { name: 'Articles', href: '/resources/articles' },
       { name: 'Photo Gallery', href: '/resources/gallery' }
     ]
@@ -96,28 +98,38 @@ export default function Navbar() {
 
   return (
     <motion.header
-      className={`fixed w-full z-50 transition-all duration-300 ${scrolled
-        ? 'bg-white shadow-md py-2'
-        : 'bg-white/90 backdrop-blur-sm shadow-sm py-3'
+      className={`fixed w-full z-50 transition-all duration-500 ${scrolled
+        ? 'glass-morphism py-2 shadow-lg'
+        : 'bg-white/40 backdrop-blur-md py-4'
         }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.8, ease: 'circOut' }}
     >
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <div className="relative h-12 w-12 mr-3">
+          <Link href="/" className="flex items-center group">
+            <motion.div
+              className="relative h-12 w-12 mr-3"
+              whileHover={{ rotate: 360 }}
+              transition={{ duration: 0.8, ease: 'easeInOut' }}
+            >
               <Image
                 src="/images/iskcon-logo.png"
                 alt="ISKCON Logo"
                 width={48}
                 height={48}
+                className="drop-shadow-md"
               />
-            </div>
-            <div className="font-sanskrit font-bold text-2xl text-red-600">
-              ISKCON DURGAPUR
+            </motion.div>
+            <div className="flex flex-col">
+              <span className="font-sanskrit font-black text-2xl tracking-tighter bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 bg-clip-text text-transparent">
+                ISKCON
+              </span>
+              <span className="text-[10px] font-bold tracking-[0.3em] text-gray-500 uppercase -mt-1 pl-1">
+                Durgapur
+              </span>
             </div>
           </Link>
 
