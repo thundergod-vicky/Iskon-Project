@@ -110,7 +110,7 @@ export default function Navbar() {
           <Link href="/" className="flex items-center group">
             <motion.div
               className="relative h-12 w-12 mr-3"
-              whileHover={{ rotate: 360 }}
+              whileHover={{ rotateY: 360 }}
               transition={{ duration: 0.8, ease: 'easeInOut' }}
             >
               <Image
