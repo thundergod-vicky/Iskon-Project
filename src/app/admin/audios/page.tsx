@@ -26,14 +26,14 @@ export default function AdminAudioPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   
   // Form State
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Omit<Audio, '_id'>>({
     title: '',
     speaker: 'Srila Prabhupada',
     audioUrl: '',
     duration: '',
     description: '',
-    category: 'Lecture' as const,
-    tags: [] as string[],
+    category: 'Lecture',
+    tags: [],
     image: '/images/audio-placeholder.jpg',
     isActive: true,
   });

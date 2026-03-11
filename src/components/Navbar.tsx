@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaChevronDown, FaHome, FaInfoCircle, FaPrayingHands, FaCalendarAlt, FaBook, FaLandmark, FaImages, FaEnvelope, FaUtensils, FaPlane, FaGraduationCap, FaShoppingCart, FaUsers } from 'react-icons/fa';
+import GrowGlobalModal from './GrowGlobalModal';
 
 const navigation = [
   { name: 'Home', href: '/', icon: <FaHome className="mr-2" /> },
@@ -75,6 +76,7 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [isGrowGlobalOpen, setIsGrowGlobalOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -95,7 +97,8 @@ export default function Navbar() {
   };
 
   return (
-    <motion.header
+    <>
+      <motion.header
       className={`fixed w-full z-50 transition-all duration-500 ${scrolled
         ? 'glass-morphism py-2 shadow-lg'
         : 'bg-white/40 backdrop-blur-md py-4'
@@ -182,6 +185,23 @@ export default function Navbar() {
             <Link href="/donate" className="btn-primary">
               Donate
             </Link>
+
+            {/* GrowGlobal Partner Logo */}
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsGrowGlobalOpen(true)}
+              className="relative h-10 w-10 overflow-hidden rounded-full border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all ml-4 flex items-center justify-center p-1"
+              title="GrowGlobal - Tech Partner"
+            >
+              <Image
+                src="/images/GrowGlobal_500.png"
+                alt="GrowGlobal Logo"
+                width={32}
+                height={32}
+                className="object-contain"
+              />
+            </motion.button>
           </div>
 
           {/* Mobile menu button */}
@@ -277,11 +297,36 @@ export default function Navbar() {
                 >
                   Donate
                 </Link>
+
+                {/* GrowGlobal Mobile Link */}
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    setIsGrowGlobalOpen(true);
+                  }}
+                  className="w-full py-3 px-4 bg-white text-indigo-700 rounded-xl flex items-center justify-center space-x-3 border-2 border-indigo-100 font-bold shadow-sm active:scale-95 transition-all"
+                >
+                  <div className="w-8 h-8 relative rounded-full overflow-hidden bg-white border border-gray-100 p-1">
+                    <Image
+                      src="/images/GrowGlobal_500.png"
+                      alt="GrowGlobal Logo"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <span>About GrowGlobal</span>
+                </button>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
     </motion.header>
+
+    <GrowGlobalModal 
+      isOpen={isGrowGlobalOpen} 
+      onClose={() => setIsGrowGlobalOpen(false)} 
+    />
+    </>
   );
-} 
+}
