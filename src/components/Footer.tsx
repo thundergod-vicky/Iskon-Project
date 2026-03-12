@@ -3,9 +3,15 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 import { FaFacebook, FaTwitter, FaYoutube, FaInstagram, FaMapMarkerAlt, FaPhone, FaEnvelope } from 'react-icons/fa';
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  // Hide footer on home page
+  if (pathname === '/') return null;
+
   const footerLinks = [
     {
       title: 'About ISKCON',
