@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaShoppingCart, FaFilter, FaSearch, FaHeart } from 'react-icons/fa';
+import { useCart } from '@/context/CartContext';
 
 // Sample product data - in a real app, this would come from an API or database
 const products = [
@@ -88,7 +89,7 @@ const categories = [
 const StorePage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All Items");
   const [searchQuery, setSearchQuery] = useState("");
-  const [cartCount, setCartCount] = useState(0);
+  const { addItem, toggleCart, cartCount } = useCart();
 
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === "All Items" || product.category === selectedCategory;
@@ -97,8 +98,8 @@ const StorePage = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const addToCart = () => {
-    setCartCount(prev => prev + 1);
+  const addToCart = (product: any) => {
+    addItem(product);
   };
 
   return (
@@ -153,7 +154,10 @@ const StorePage = () => {
                 ))}
               </div>
             </div>
-            <button className="relative flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+            <button 
+              onClick={toggleCart}
+              className="relative flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
               <FaShoppingCart />
               <span>Cart</span>
               {cartCount > 0 && (
@@ -215,7 +219,7 @@ const StorePage = () => {
                     <span className="text-sm text-gray-500 ml-1">({product.reviews})</span>
                   </div>
                   <button
-                    onClick={addToCart}
+                    onClick={() => addToCart(product)}
                     disabled={!product.inStock}
                     className={`px-4 py-2 rounded-lg text-sm font-medium ${product.inStock
                       ? 'bg-purple-600 text-white hover:bg-purple-700'

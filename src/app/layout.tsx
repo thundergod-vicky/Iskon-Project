@@ -4,7 +4,9 @@ import '@/styles/globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { AuthProvider } from '@/context/auth/AuthContext';
+import { CartProvider } from '@/context/CartContext';
 import AIChatWidget from '@/components/AIChatWidget';
+import CartDrawer from '@/components/CartDrawer';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -61,10 +63,13 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
       <body className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col">
         <AuthProvider>
-          <Navbar />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-          <AIChatWidget />
+          <CartProvider>
+            <Navbar />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+            <CartDrawer />
+            <AIChatWidget />
+          </CartProvider>
         </AuthProvider>
       </body>
     </html>
