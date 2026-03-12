@@ -1,0 +1,17 @@
+tests/security.spec.ts(46,102): error TS2339: Property 'responseHeaders' does not exist on type 'PerformanceEntry'.
+tests/security.spec.ts(47,9): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{}'.
+  No index signature with a parameter of type 'string' was found on type '{}'.
+tests/security.spec.ts(53,12): error TS7053: Element implicitly has an 'any' type because expression of type '"content-security-policy"' can't be used to index type '{}'.
+  Property 'content-security-policy' does not exist on type '{}'.
+tests/security.spec.ts(54,12): error TS7053: Element implicitly has an 'any' type because expression of type '"x-frame-options"' can't be used to index type '{}'.
+  Property 'x-frame-options' does not exist on type '{}'.
+tests/security.spec.ts(55,12): error TS7053: Element implicitly has an 'any' type because expression of type '"x-content-type-options"' can't be used to index type '{}'.
+  Property 'x-content-type-options' does not exist on type '{}'.
+tests/security.spec.ts(56,12): error TS7053: Element implicitly has an 'any' type because expression of type '"x-xss-protection"' can't be used to index type '{}'.
+  Property 'x-xss-protection' does not exist on type '{}'.
+tests/security.spec.ts(82,12): error TS18048: 'sessionCookie' is possibly 'undefined'.
+tests/security.spec.ts(83,12): error TS18048: 'sessionCookie' is possibly 'undefined'.
+tests/security.spec.ts(84,12): error TS18048: 'sessionCookie' is possibly 'undefined'.
+tests/security.spec.ts(107,42): error TS2341: Property 'verifyBackup' is private and only accessible within class 'BackupManager'.
+tests/security.spec.ts(107,42): error TS2554: Expected 2 arguments, but got 1.
+tests/security.spec.ts(107,62): error TS2339: Property 'name' does not exist on type 'void'.

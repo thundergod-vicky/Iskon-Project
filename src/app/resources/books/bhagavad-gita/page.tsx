@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -88,7 +88,7 @@ const COMMENTARIES: { key: keyof VerseData; label: string }[] = [
   { key: "puru",    label: "Prabhu Dutt Brahmachari" },
 ];
 
-export default function BhagavadGitaReaderPage() {
+function BhagavadGitaContent() {
   const searchParams = useSearchParams();
 
   const initChapter = parseInt(searchParams?.get("chapter") || "1");
@@ -488,5 +488,20 @@ export default function BhagavadGitaReaderPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function BhagavadGitaReaderPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-amber-50">
+        <div className="flex flex-col items-center gap-4 text-iskcon-orange">
+          <FaSpinner className="text-4xl animate-spin" />
+          <p className="text-gray-500 text-sm font-medium">Preparing the Gita for you...</p>
+        </div>
+      </div>
+    }>
+      <BhagavadGitaContent />
+    </Suspense>
   );
 }
