@@ -35,6 +35,7 @@ export default function GrowGlobalModal({ isOpen, onClose }: GrowGlobalModalProp
                   type: "spring",
                   damping: 25,
                   stiffness: 300
+                  
                 }
               }}
               exit={{ scale: 0.95, opacity: 0, y: 10 }}
