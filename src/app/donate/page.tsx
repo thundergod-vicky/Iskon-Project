@@ -174,7 +174,7 @@ export default function DonatePage() {
 
                                         <button 
                                             type="submit"
-                                            disabled={!amount || amount < 1}
+                                            disabled={!amount || Number(amount) < 1}
                                             className="mt-auto w-full py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all disabled:opacity-50 disabled:transform-none text-lg flex items-center justify-center gap-2"
                                         >
                                             Proceed to Donate ₹{amount || 0}
