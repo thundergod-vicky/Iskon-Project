@@ -14,148 +14,98 @@ export default function GrowGlobalModal({ isOpen, onClose }: GrowGlobalModalProp
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop - Subtle and clean */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-slate-950/40 backdrop-blur-md z-[9998] cursor-pointer"
+            className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[9998] cursor-pointer"
           />
 
           {/* Modal Container */}
-          <div className="fixed inset-0 flex items-center justify-center z-[9999] pointer-events-none p-4 sm:p-6">
+          <div className="fixed inset-0 flex items-center justify-center z-[9999] pointer-events-none p-4 md:p-6">
             <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 10 }}
-              animate={{ 
-                scale: 1, 
-                opacity: 1, 
-                y: 0,
-                transition: { 
-                  type: "spring",
-                  damping: 25,
-                  stiffness: 300
-                  
-                }
-              }}
-              exit={{ scale: 0.95, opacity: 0, y: 10 }}
-              className="bg-white rounded-[24px] overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] max-w-4xl w-full pointer-events-auto flex flex-col md:flex-row max-h-[90vh] md:max-h-none border border-white/20"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="bg-white rounded-xl overflow-hidden shadow-2xl max-w-3xl w-full pointer-events-auto flex flex-col md:flex-row border border-slate-200"
             >
-              {/* Left Side - Visual Identity */}
-              <div className="md:w-[38%] bg-[#4F46E5] p-10 flex flex-col items-center justify-center text-white relative overflow-hidden shrink-0">
-                {/* Subtle Geometric accents */}
-                <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-                  <div className="absolute top-[-10%] left-[-10%] w-[120%] h-[120%] bg-[radial-gradient(circle,white_1px,transparent_1px)] [background-size:24px_24px]" />
+              {/* Left Side - Corporate Identity */}
+              <div className="md:w-[40%] bg-slate-900 p-8 flex flex-col items-center justify-center text-white shrink-0">
+                <div className="mb-6 p-4 bg-white rounded-lg shadow-inner">
+                  <Image 
+                    src="/images/GrowGlobal_500.png" 
+                    alt="GrowGlobal Logo" 
+                    width={100} 
+                    height={100}
+                    className="object-contain"
+                    priority
+                  />
                 </div>
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32" />
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-3xl -ml-24 -mb-24" />
                 
-                <motion.div 
-                  className="z-10 mb-8"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
-                  <div className="w-40 h-40 bg-white rounded-3xl shadow-xl flex items-center justify-center p-6 border-4 border-white/20">
-                    <Image 
-                      src="/images/GrowGlobal_500.png" 
-                      alt="GrowGlobal Logo" 
-                      width={120} 
-                      height={120}
-                      className="object-contain"
-                      priority
-                    />
-                  </div>
-                </motion.div>
-                
-                <h2 className="text-3xl font-bold text-center tracking-tight relative z-10">GrowGlobal</h2>
-                <div className="h-1 w-8 bg-indigo-300/50 mt-4 rounded-full relative z-10" />
-                <p className="text-indigo-100/90 text-sm text-center mt-6 max-w-[220px] font-medium leading-relaxed relative z-10">
-                  Accelerating Global Reach through Web 3.0 & Advanced AI Systems.
-                </p>
+                <div className="text-center">
+                  <h2 className="text-xl font-bold tracking-tight mb-2">GrowGlobal</h2>
+                  <div className="h-1 w-10 bg-indigo-500 mx-auto rounded-full mb-4" />
+                  <p className="text-slate-400 text-xs leading-relaxed px-2">
+                    Official Technology Partner for ISKCON Durgapur Digital Initiatives.
+                  </p>
+                </div>
               </div>
 
-              {/* Right Side - Information Content */}
-              <div className="md:w-[62%] p-8 md:p-14 flex flex-col relative bg-white overflow-y-auto">
-                <button 
-                  onClick={onClose}
-                  className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all rounded-full z-20 group"
-                  aria-label="Close modal"
-                >
-                  <FaTimes className="text-xl group-hover:rotate-90 transition-transform duration-300" />
-                </button>
-
-                <div className="space-y-10">
-                  <header>
-                    <span className="text-indigo-600 font-bold tracking-[0.2em] uppercase text-[10px] mb-3 block">Corporate Profile</span>
-                    <h3 className="text-slate-900 mt-2 leading-snug text-2xl md:text-3xl font-bold tracking-tight">
-                      Empowering the next generation of global businesses.
-                    </h3>
-                    <p className="text-slate-600 mt-4 leading-relaxed font-medium">
-                      GrowGlobal.io is a premier Indian tech startup specializing in Web 3.0 protocols. We bridge the gap between local operations and global markets using autonomous AI scaling and blockchain integrity.
-                    </p>
-                  </header>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-8">
-                    <div className="flex items-start gap-4">
-                      <div className="bg-indigo-50 w-12 h-12 shrink-0 flex items-center justify-center rounded-xl text-indigo-600">
-                        <FaRobot className="text-xl" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-slate-900 text-base">AI Automation</h4>
-                        <p className="text-sm text-slate-500 mt-1 leading-tight">Scale operations with zero-touch intelligent workflows.</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-4">
-                      <div className="bg-blue-50 w-12 h-12 shrink-0 flex items-center justify-center rounded-xl text-blue-600">
-                        <FaRocket className="text-xl" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-slate-900 text-base">Web 3.0 Scaling</h4>
-                        <p className="text-sm text-slate-500 mt-1 leading-tight">Tokenizing assets for a borderless digital economy.</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-4">
-                      <div className="bg-emerald-50 w-12 h-12 shrink-0 flex items-center justify-center rounded-xl text-emerald-600">
-                        <FaGlobe className="text-xl" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-slate-900 text-base">Global Hubs</h4>
-                        <p className="text-sm text-slate-500 mt-1 leading-tight">Established presence in India and Estonia.</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-4">
-                      <div className="bg-orange-50 w-12 h-12 shrink-0 flex items-center justify-center rounded-xl text-orange-600">
-                        <FaLayerGroup className="text-xl" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-slate-900 text-base">Ecosystem</h4>
-                        <p className="text-sm text-slate-500 mt-1 leading-tight">A unified suite of 10+ scalable tech platforms.</p>
-                      </div>
-                    </div>
+              {/* Right Side - Detailed Information */}
+              <div className="md:w-[60%] p-8 md:p-10 flex flex-col bg-white overflow-y-auto">
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900 mb-1 tracking-tight">Corporate Profile</h3>
+                    <p className="text-indigo-600 font-bold text-[10px] uppercase tracking-wider">Advancing Digital Frontiers</p>
                   </div>
+                  <button 
+                    onClick={onClose}
+                    className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors rounded-lg"
+                    title="Close"
+                  >
+                    <FaTimes className="text-lg" />
+                  </button>
+                </div>
 
-                  <footer className="pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-8">
-                    <div className="flex items-center gap-4 self-start sm:self-center">
-                      <div className="flex -space-x-2">
-                        {[1, 2, 3].map((i) => (
-                          <div key={i} className={`w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-sm ${i === 1 ? 'bg-indigo-600' : i === 2 ? 'bg-[#4F46E5]' : 'bg-indigo-400'}`}>
-                            {i === 1 ? 'G' : i === 2 ? 'G' : 'IO'}
-                          </div>
-                        ))}
+                <p className="text-slate-600 leading-relaxed text-sm mb-8">
+                  GrowGlobal is a distinguished Indian technology startup bridging the gap between local enterprise and global digital markets through Web 3.0 and AI.
+                </p>
+
+                <div className="grid grid-cols-1 gap-y-6 mb-8">
+                  {[
+                    { icon: <FaRobot />, title: 'AI Automation', desc: 'Implementing intelligent, autonomous workflows.' },
+                    { icon: <FaRocket />, title: 'Web 3.0 Integration', desc: 'Secure and borderless asset management.' },
+                    { icon: <FaGlobe />, title: 'Global Presence', desc: 'Strategic hubs in India and Estonia.' },
+                  ].map((service, idx) => (
+                    <div key={idx} className="flex gap-4 group">
+                      <div className="text-indigo-600 text-xl mt-0.5 opacity-80 shrink-0">
+                        {service.icon}
                       </div>
-                      <span className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Tech Partner</span>
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-sm mb-1">{service.title}</h4>
+                        <p className="text-xs text-slate-500 leading-tight font-medium">{service.desc}</p>
+                      </div>
                     </div>
-                    
-                    <a 
-                      href="https://growglobal.io" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-indigo-600 text-white px-10 py-4 rounded-xl hover:bg-slate-900 transition-all font-bold shadow-xl shadow-indigo-100 hover:shadow-slate-200 active:scale-95 group"
-                    >
-                      <span>Visit growglobal.io</span>
-                      <FaExternalLinkAlt className="text-xs opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-                    </a>
-                  </footer>
+                  ))}
+                </div>
+
+                <div className="mt-auto pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-slate-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    Strategic Partner
+                  </div>
+                  
+                  <a 
+                    href="https://growglobal.io" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-lg hover:bg-indigo-600 transition-all text-xs font-bold shadow-md"
+                  >
+                    <span>Visit growglobal.io</span>
+                    <FaExternalLinkAlt className="text-[10px]" />
+                  </a>
                 </div>
               </div>
             </motion.div>

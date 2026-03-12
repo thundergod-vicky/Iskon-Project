@@ -76,21 +76,30 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const [isGrowGlobalOpen, setIsGrowGlobalOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 10;
-      if (isScrolled !== scrolled) {
-        setScrolled(isScrolled);
+      const currentScrollY = window.scrollY;
+      
+      // Update basic scrolled state for styling
+      setScrolled(currentScrollY > 10);
+
+      // Handle visibility on scroll
+      if (currentScrollY > lastScrollY && currentScrollY > 100 && !isMenuOpen) {
+        setIsVisible(false);
+      } else if (currentScrollY < lastScrollY || currentScrollY <= 10) {
+        setIsVisible(true);
       }
+      
+      setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [scrolled]);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY, isMenuOpen]);
 
   const toggleSubmenu = (name: string) => {
     setActiveSubmenu(activeSubmenu === name ? null : name);
@@ -99,13 +108,13 @@ export default function Navbar() {
   return (
     <>
       <motion.header
-      className={`fixed w-full z-50 transition-all duration-500 ${scrolled
+      className={`fixed w-full z-50 transition-all duration-300 ${scrolled
         ? 'glass-morphism py-2 shadow-lg'
         : 'bg-white/40 backdrop-blur-md py-4'
         }`}
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.8, ease: 'circOut' }}
+      initial={{ y: 0 }}
+      animate={{ y: isVisible ? 0 : -100 }}
+      transition={{ duration: 0.3, ease: 'easeInOut' }}
     >
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center">
@@ -186,20 +195,21 @@ export default function Navbar() {
               Donate
             </Link>
 
-            {/* GrowGlobal Partner Logo */}
+            {/* GrowGlobal Logo Trigger */}
             <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => setIsGrowGlobalOpen(true)}
-              className="relative h-10 w-10 overflow-hidden rounded-full border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all ml-4 flex items-center justify-center p-1"
+              className="relative h-11 w-11 overflow-hidden rounded-full border-2 border-white bg-slate-950 shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.2)] transition-all ml-4 flex items-center justify-center p-1 group"
               title="GrowGlobal - Tech Partner"
             >
+              <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <Image
                 src="/images/GrowGlobal_500.png"
                 alt="GrowGlobal Logo"
-                width={32}
-                height={32}
-                className="object-contain"
+                width={36}
+                height={36}
+                className="object-contain relative z-10"
               />
             </motion.button>
           </div>
@@ -298,24 +308,24 @@ export default function Navbar() {
                   Donate
                 </Link>
 
-                {/* GrowGlobal Mobile Link */}
-                <button
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    setIsGrowGlobalOpen(true);
-                  }}
-                  className="w-full py-3 px-4 bg-white text-indigo-700 rounded-xl flex items-center justify-center space-x-3 border-2 border-indigo-100 font-bold shadow-sm active:scale-95 transition-all"
-                >
-                  <div className="w-8 h-8 relative rounded-full overflow-hidden bg-white border border-gray-100 p-1">
+                {/* GrowGlobal Mobile Logo Trigger */}
+                <div className="flex justify-center pt-2">
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setIsGrowGlobalOpen(true);
+                    }}
+                    className="h-16 w-16 relative rounded-full overflow-hidden bg-slate-950 flex items-center justify-center p-2 shadow-xl border-4 border-slate-100 active:scale-90 transition-all"
+                  >
                     <Image
                       src="/images/GrowGlobal_500.png"
                       alt="GrowGlobal Logo"
-                      fill
+                      width={48}
+                      height={48}
                       className="object-contain"
                     />
-                  </div>
-                  <span>About GrowGlobal</span>
-                </button>
+                  </button>
+                </div>
               </div>
             </div>
           </motion.div>
