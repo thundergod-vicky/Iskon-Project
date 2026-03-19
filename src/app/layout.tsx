@@ -2,10 +2,10 @@ import type { Metadata } from 'next';
 import { Inter, Poppins } from 'next/font/google';
 import '@/styles/globals.css';
 import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+
 import { AuthProvider } from '@/context/auth/AuthContext';
 import { CartProvider } from '@/context/CartContext';
-import AIChatWidget from '@/components/AIChatWidget';
+
 import CartDrawer from '@/components/CartDrawer';
 
 const inter = Inter({
@@ -66,9 +66,9 @@ export default function RootLayout({
           <CartProvider>
             <Navbar />
             <main className="flex-grow">{children}</main>
-            <Footer />
+
             <CartDrawer />
-            <AIChatWidget />
+
           </CartProvider>
         </AuthProvider>
       </body>

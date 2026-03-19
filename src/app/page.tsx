@@ -67,7 +67,7 @@ export default function Home() {
                 className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg mb-6"
               >
                 <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-sm font-medium text-gray-700">Temple Open Daily 4:30 AM - 8:30 PM</span>
+                <span className="text-sm font-medium text-gray-700">Temple Open Daily 4:30 AM - 1:30 PM and 4:00 PM - 8:30 PM</span>
               </motion.div>
 
               {/* Main Heading */}
@@ -83,21 +83,6 @@ export default function Home() {
                   ISKCON Durgapur
                 </span>
               </motion.h1>
-
-              {/* Sanskrit Verse */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={isLoaded ? { opacity: 1 } : {}}
-                transition={{ delay: 0.6 }}
-                className="mb-6 p-4 bg-white/60 backdrop-blur-sm rounded-xl border-l-4 border-orange-500"
-              >
-                <p className="text-2xl sm:text-3xl font-sanskrit text-orange-700 mb-2">
-                  हरे कृष्ण हरे कृष्ण
-                </p>
-                <p className="text-lg font-sanskrit text-orange-600">
-                  कृष्ण कृष्ण हरे हरे
-                </p>
-              </motion.div>
 
               {/* Description */}
               <motion.p
