@@ -86,29 +86,6 @@ export default function HistoryPage() {
                     ))}
                 </div>
 
-                {/* Cultural Impact */}
-                <div className="max-w-6xl mx-auto bg-gray-900 rounded-[3rem] p-10 md:p-20 text-white overflow-hidden relative mb-20 shadow-2xl">
-                    <div className="absolute inset-0 bg-[url('/images/gallery/devotees-serving.jpg')] opacity-10 bg-cover mix-blend-screen" />
-                    <div className="relative z-10 text-center mb-16">
-                        <h2 className="text-4xl font-black mb-4">Global Cultural Impact</h2>
-                        <p className="text-gray-400 max-w-2xl mx-auto">ISKCON hasn't just built temples; it has shifted cultural paradigms around the world.</p>
-                    </div>
-
-                    <div className="grid md:grid-cols-3 gap-8 relative z-10">
-                        <div className="bg-white/10 backdrop-blur-md p-8 rounded-3xl border border-white/10 hover:-translate-y-2 transition-transform">
-                            <h3 className="font-bold text-xl text-orange-400 mb-4 tracking-widest uppercase">Literary</h3>
-                            <p className="text-gray-300">Translated and distributed over half a billion books in 80+ languages, preserving the profound depth of Vedic philosophy.</p>
-                        </div>
-                        <div className="bg-white/10 backdrop-blur-md p-8 rounded-3xl border border-white/10 hover:-translate-y-2 transition-transform">
-                            <h3 className="font-bold text-xl text-orange-400 mb-4 tracking-widest uppercase">Dietary</h3>
-                            <p className="text-gray-300">Pioneered global vegetarianism through Govinda's restaurants and Food for Life, the world's largest plant-based food relief.</p>
-                        </div>
-                        <div className="bg-white/10 backdrop-blur-md p-8 rounded-3xl border border-white/10 hover:-translate-y-2 transition-transform">
-                            <h3 className="font-bold text-xl text-orange-400 mb-4 tracking-widest uppercase">Musical</h3>
-                            <p className="text-gray-300">Introduced Kirtan to the mainstream, influencing global music icons and embedding the Hare Krishna mantra in pop culture.</p>
-                        </div>
-                    </div>
-                </div>
 
             </div>
         </main>
