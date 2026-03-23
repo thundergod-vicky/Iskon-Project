@@ -165,7 +165,7 @@ export default function TempleDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 pt-24 md:pt-32">
       {/* Admin Header */}
       <header className="bg-white shadow-md">
         <div className="container mx-auto px-4 py-4">

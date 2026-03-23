@@ -26,7 +26,6 @@ const navigation = [
     icon: <FaPrayingHands className="mr-2" />,
     submenu: [
       { name: 'Biography', href: '/prabhupada/biography' },
-      { name: 'Teachings', href: '/prabhupada/teachings' },
       { name: 'Books', href: '/prabhupada-books' },
       { name: 'Lectures', href: '/prabhupada/lectures' },
       { name: 'Quotes', href: '/resources/prabhupada-quotes' },
@@ -39,12 +38,9 @@ const navigation = [
     icon: <FaBook className="mr-2" />,
     submenu: [
       { name: 'Daily Worship', href: '/spiritual-life/daily-worship' },
-      { name: 'Sadhana Tracker', href: '/spiritual-life/sadhana' },
       { name: 'Festivals', href: '/spiritual-life/festivals' },
       { name: 'All Courses', href: '/courses' },
-      { name: 'Upcoming Courses', href: '/courses/upcoming' },
-      { name: 'Completed Courses', href: '/courses/completed' },
-      { name: 'Spiritual Tours', href: '/spiritual-tours' },
+      { name: 'Spiritual Retreats', href: '/spiritual-tours' },
       { name: 'Prasadam', href: '/prasadam' }
     ]
   },
@@ -53,10 +49,7 @@ const navigation = [
     href: '/resources',
     icon: <FaLandmark className="mr-2" />,
     submenu: [
-      { name: 'Books', href: '/resources/books' },
-      { name: 'Audio & Podcasts', href: '/resources/audio' },
-      { name: 'Videos', href: '/resources/videos' },
-      { name: 'Photo Gallery', href: '/resources/gallery' }
+      { name: 'Audio & Podcasts', href: '/resources/audio' }
     ]
   },
   {

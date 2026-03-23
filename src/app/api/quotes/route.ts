@@ -40,10 +40,6 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    if (!await isAdmin(request)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     await connectDB();
     const body = await request.json();
     const newQuote = await Quote.create(body);

@@ -1,357 +1,255 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { FaPlus, FaEdit, FaTrash, FaCheck, FaTimes, FaRupeeSign, FaImage, FaArrowLeft } from 'react-icons/fa';
-import Link from 'next/link';
-
-interface PrasadamItem {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  image: string;
-  category: string;
-  rating: number;
-  isVegan: boolean;
-  ingredients: string[];
-  available: boolean;
-}
-
-// Sample data — same as the public Prasadam page, used when DB is unavailable
-const SAMPLE_ITEMS: PrasadamItem[] = [
-  { _id: 'sample-1', name: 'Laddu', description: 'Traditional sweet made from gram flour, sugar, and ghee, offered to Lord Krishna.', price: 5.99, image: '/images/prasadam/laddu.jpg', category: 'Sweets', rating: 4.8, isVegan: false, ingredients: ['Gram flour', 'Sugar', 'Ghee', 'Cardamom', 'Nuts'], available: true },
-  { _id: 'sample-2', name: 'Halwa', description: 'Rich semolina pudding with ghee, sugar, and dry fruits.', price: 4.99, image: '/images/prasadam/halwa.jpg', category: 'Sweets', rating: 4.6, isVegan: false, ingredients: ['Semolina', 'Sugar', 'Ghee', 'Cardamom', 'Raisins', 'Almonds'], available: true },
-  { _id: 'sample-3', name: 'Khichdi', description: 'Savory rice and lentil dish with spices, easy to digest and nutritious.', price: 7.99, image: '/images/prasadam/khichdi.jpg', category: 'Savory', rating: 4.7, isVegan: true, ingredients: ['Rice', 'Moong Dal', 'Ghee', 'Cumin', 'Turmeric', 'Ginger'], available: true },
-  { _id: 'sample-4', name: 'Pakoras', description: 'Crispy vegetable fritters made with chickpea flour and spices.', price: 6.99, image: '/images/prasadam/pakoras.jpg', category: 'Savory', rating: 4.5, isVegan: true, ingredients: ['Chickpea flour', 'Mixed vegetables', 'Spices', 'Oil'], available: true },
-  { _id: 'sample-5', name: 'Sandesh', description: 'Bengali sweet made from paneer and sugar, with delicate flavoring.', price: 8.99, image: '/images/prasadam/sandesh.jpg', category: 'Sweets', rating: 4.9, isVegan: false, ingredients: ['Paneer', 'Sugar', 'Cardamom', 'Saffron'], available: true },
-  { _id: 'sample-6', name: 'Vegetable Pulao', description: 'Fragrant rice dish with mixed vegetables and aromatic spices.', price: 9.99, image: '/images/prasadam/pulao.jpg', category: 'Savory', rating: 4.4, isVegan: true, ingredients: ['Basmati rice', 'Mixed vegetables', 'Ghee', 'Cumin', 'Cloves', 'Cinnamon'], available: true },
-  { _id: 'sample-7', name: 'Chutney', description: 'Sweet and tangy condiment made from fruits or vegetables.', price: 3.99, image: '/images/prasadam/chutney.jpg', category: 'Condiments', rating: 4.3, isVegan: true, ingredients: ['Fruits/Vegetables', 'Spices', 'Sugar', 'Vinegar'], available: true },
-  { _id: 'sample-8', name: 'Jalebi', description: 'Spiral-shaped sweet made from fermented batter, deep-fried and soaked in sugar syrup.', price: 6.49, image: '/images/prasadam/jalebi.jpg', category: 'Sweets', rating: 4.7, isVegan: true, ingredients: ['Flour', 'Yogurt', 'Sugar syrup', 'Saffron', 'Cardamom'], available: true },
-];
+import { FaPlus, FaEdit, FaTrash, FaCheck, FaUtensils, FaShoppingCart } from 'react-icons/fa';
 
 export default function AdminPrasadamPage() {
-  const [items, setItems] = useState<PrasadamItem[]>(SAMPLE_ITEMS);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<PrasadamItem | null>(null);
+  const [items, setItems] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState('items'); 
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentItem, setCurrentItem] = useState<any>(null);
+  
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    price: 0,
-    image: '',
-    category: 'Sweets',
-    isVegan: false,
-    ingredients: '',
-    available: true
+    name: '', description: '', price: 0, image: '', active: true
   });
+  const [status, setStatus] = useState({ type: '', message: '' });
 
   useEffect(() => {
     fetchItems();
+    fetchBookings();
   }, []);
 
   const fetchItems = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch('/api/prasadam');
-      if (response.ok) {
-        const data = await response.json();
-        // Only use DB data if there are actual items
-        if (Array.isArray(data) && data.length > 0) {
-          setItems(data);
-        }
-        // else keep sample data
-      }
-    } catch (error) {
-      console.error('Failed to fetch items:', error);
-      // Keep sample data on failure
-    } finally {
-      setIsLoading(false);
-    }
+    const res = await fetch('/api/prasadam');
+    if (res.ok) setItems(await res.json());
   };
 
-  const handleOpenModal = (item: PrasadamItem | null = null) => {
-    if (item) {
-      setEditingItem(item);
-      setFormData({
-        name: item.name,
-        description: item.description,
-        price: item.price,
-        image: item.image,
-        category: item.category,
-        isVegan: item.isVegan,
-        ingredients: item.ingredients.join(', '),
-        available: item.available
-      });
-    } else {
-      setEditingItem(null);
-      setFormData({
-        name: '',
-        description: '',
-        price: 0,
-        image: '',
-        category: 'Sweets',
-        isVegan: false,
-        ingredients: '',
-        available: true
-      });
-    }
-    setIsModalOpen(true);
+  const fetchBookings = async () => {
+    const res = await fetch('/api/prasadam-bookings');
+    if (res.ok) setBookings(await res.json());
+  };
+
+  const handleInputChange = (e: any) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    setFormData({ ...formData, [e.target.name]: value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const url = editingItem ? `/api/prasadam/${editingItem._id}` : '/api/prasadam';
-    const method = editingItem ? 'PUT' : 'POST';
-    
-    const payload = {
-      ...formData,
-      ingredients: formData.ingredients.split(',').map(i => i.trim()).filter(i => i !== '')
-    };
+    setStatus({ type: 'loading', message: 'Saving...' });
 
     try {
-      const response = await fetch(url, {
+      const url = isEditing ? `/api/prasadam/${currentItem._id}` : '/api/prasadam';
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ ...formData, price: Number(formData.price) })
       });
 
-      if (response.ok) {
-        setIsModalOpen(false);
-        fetchItems();
-      } else {
-        alert('Failed to save item');
-      }
-    } catch (error) {
-      console.error('Save error:', error);
+      if (!res.ok) throw new Error('Failed to save item');
+
+      setStatus({ type: 'success', message: 'Item saved successfully!' });
+      setIsEditing(false);
+      setCurrentItem(null);
+      setFormData({ name: '', description: '', price: 0, image: '', active: true });
+      fetchItems();
+      setTimeout(() => setStatus({ type: '', message: '' }), 3000);
+    } catch (err: any) {
+      setStatus({ type: 'error', message: err.message });
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this item?')) return;
+  const editItem = (item: any) => {
+    setIsEditing(true);
+    setCurrentItem(item);
+    setFormData({
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      image: item.image,
+      active: item.active
+    });
+    setActiveTab('form');
+  };
 
+  const deleteItem = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this item?')) return;
     try {
-      const response = await fetch(`/api/prasadam/${id}`, { method: 'DELETE' });
-      if (response.ok) {
-        fetchItems();
-      }
-    } catch (error) {
-      console.error('Delete error:', error);
+      const res = await fetch(`/api/prasadam/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete');
+      fetchItems();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
+  const updateBookingStatus = async (id: string, newStatus: string) => {
+    try {
+      const res = await fetch(`/api/prasadam-bookings/${id}`, { 
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (res.ok) fetchBookings();
+    } catch (err) {
+      console.error(err);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 pt-24 md:p-8 md:pt-32">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-          <div className="flex items-center">
-            <Link href="/admin" className="mr-4 p-2 bg-white rounded-full shadow hover:bg-gray-50 text-gray-600">
-              <FaArrowLeft />
-            </Link>
-            <h1 className="text-3xl font-bold text-gray-800">Prasadam Management</h1>
-          </div>
-          <button
-            onClick={() => handleOpenModal()}
-            className="flex items-center px-6 py-3 bg-iskcon-orange text-white rounded-lg shadow hover:bg-iskcon-orange/90 transition"
+    <div className="p-8 pt-24 md:pt-32 max-w-6xl mx-auto">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+          <FaUtensils className="text-amber-500" />
+          Manage Prasadam
+        </h1>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => { setActiveTab('items'); setIsEditing(false); }}
+            className={`px-4 py-2 font-bold rounded-lg ${activeTab === 'items' ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-600'}`}
           >
-            <FaPlus className="mr-2" /> Add New Item
+            Menu Items
+          </button>
+          <button 
+            onClick={() => setActiveTab('form')}
+            className={`px-4 py-2 font-bold rounded-lg flex items-center gap-2 ${activeTab === 'form' ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-600'}`}
+          >
+            <FaPlus /> Add Item
+          </button>
+          <button 
+            onClick={() => setActiveTab('bookings')}
+            className={`px-4 py-2 font-bold rounded-lg flex items-center gap-2 ${activeTab === 'bookings' ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-600'}`}
+          >
+            <FaShoppingCart /> Bookings
           </button>
         </div>
-
-        {isLoading ? (
-          <div className="flex justify-center py-20">
-            <div className="w-16 h-16 border-t-4 border-iskcon-orange border-solid rounded-full animate-spin"></div>
-          </div>
-        ) : (
-          <>
-            {/* DB Status Banner */}
-            {items.length > 0 && items[0]._id.startsWith('sample-') && (
-              <div className="mb-4 flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-lg px-5 py-3 text-sm text-blue-700">
-                <span className="mt-0.5">ℹ️</span>
-                <div>
-                  <strong>Showing sample data</strong> — MongoDB is not connected. Items marked <span className="inline-block px-1.5 py-0.5 bg-blue-100 rounded text-blue-600 font-medium text-xs">Sample</span> are read-only.
-                  To manage items, whitelist your IP on <a href="https://cloud.mongodb.com" target="_blank" rel="noopener noreferrer" className="underline font-medium">MongoDB Atlas</a> and refresh.
-                </div>
-              </div>
-            )}
-
-            <div className="bg-white rounded-xl shadow overflow-hidden">
-            <table className="w-full text-left">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="px-6 py-4 font-semibold text-gray-700">Item</th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">Category</th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">Price</th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">Status</th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {items.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="text-center py-16 text-gray-500">
-                      No prasadam items found. Click "Add New Item" to get started.
-                    </td>
-                  </tr>
-                ) : items.map((item) => {
-                  const isSample = item._id.startsWith('sample-');
-                  return (
-                    <tr key={item._id} className={`hover:bg-gray-50 transition ${isSample ? 'opacity-80' : ''}`}>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center">
-                          <div className="w-12 h-12 bg-gray-200 rounded-lg mr-4 overflow-hidden">
-                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/images/placeholder.jpg'; }} />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="font-bold text-gray-800">{item.name}</p>
-                              {isSample && <span className="px-2 py-0.5 text-xs bg-blue-100 text-blue-600 rounded-full font-medium">Sample</span>}
-                            </div>
-                            <p className="text-sm text-gray-500 truncate max-w-xs">{item.description}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-gray-600">{item.category}</td>
-                      <td className="px-6 py-4 font-medium text-iskcon-orange">₹{item.price.toFixed(2)}</td>
-                      <td className="px-6 py-4">
-                        {item.available ? (
-                          <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase tracking-wider">Available</span>
-                        ) : (
-                          <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold uppercase tracking-wider">Out of Stock</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4">
-                        {isSample ? (
-                          <span className="text-xs text-gray-400 italic">Connect DB to manage</span>
-                        ) : (
-                          <div className="flex items-center space-x-3">
-                            <button onClick={() => handleOpenModal(item)} className="text-blue-500 hover:text-blue-700"><FaEdit size={18} /></button>
-                            <button onClick={() => handleDelete(item._id)} className="text-red-500 hover:text-red-700"><FaTrash size={18} /></button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            </div>
-          </>
-        )}
       </div>
 
-      {/* Modal Tool */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-8 relative">
-            <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-              <FaTimes size={24} />
-            </button>
-            <h2 className="text-2xl font-bold mb-6">{editingItem ? 'Edit Prasadam Item' : 'Add New Prasadam Item'}</h2>
-            
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Item Name</label>
-                <input
-                  required
-                  type="text"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-iskcon-orange"
-                  value={formData.name}
-                  onChange={e => setFormData({...formData, name: e.target.value})}
-                />
+      {status.message && (
+        <div className={`p-4 rounded-lg mb-6 flex items-center gap-2 ${
+          status.type === 'error' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'
+        }`}>
+          {status.message}
+        </div>
+      )}
+
+      {activeTab === 'form' && (
+        <div className="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100">
+          <h2 className="text-xl font-bold mb-6">{isEditing ? 'Edit Item' : 'Add New Item'}</h2>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Item Name *</label>
+                <input type="text" name="name" required value={formData.name} onChange={handleInputChange} className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-amber-500" />
               </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea
-                  required
-                  rows={3}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-iskcon-orange"
-                  value={formData.description}
-                  onChange={e => setFormData({...formData, description: e.target.value})}
-                />
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Image URL *</label>
+                <input type="text" name="image" required value={formData.image} onChange={handleInputChange} className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-amber-500" placeholder="/images/prasadam/mahaprasad.jpg" />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Price (₹)</label>
-                <input
-                  required
-                  type="number"
-                  step="0.01"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-iskcon-orange"
-                  value={formData.price}
-                  onChange={e => setFormData({...formData, price: parseFloat(e.target.value)})}
-                />
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Price (₹) *</label>
+                <input type="number" name="price" required value={formData.price} onChange={handleInputChange} className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-amber-500" />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                <select
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-iskcon-orange"
-                  value={formData.category}
-                  onChange={e => setFormData({...formData, category: e.target.value})}
-                >
-                  <option>Sweets</option>
-                  <option>Savory</option>
-                  <option>Condiments</option>
-                  <option>Main Course</option>
-                  <option>Drinks</option>
-                </select>
-              </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-                <input
-                  required
-                  type="text"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-iskcon-orange"
-                  placeholder="/images/prasadam/custom.jpg"
-                  value={formData.image}
-                  onChange={e => setFormData({...formData, image: e.target.value})}
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Ingredients (comma separated)</label>
-                <input
-                  type="text"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-iskcon-orange"
-                  value={formData.ingredients}
-                  onChange={e => setFormData({...formData, ingredients: e.target.value})}
-                />
-              </div>
-              <div className="flex items-center space-x-6 py-2">
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 text-iskcon-orange rounded"
-                    checked={formData.isVegan}
-                    onChange={e => setFormData({...formData, isVegan: e.target.checked})}
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Vegan</span>
-                </label>
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 text-green-600 rounded"
-                    checked={formData.available}
-                    onChange={e => setFormData({...formData, available: e.target.checked})}
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Available</span>
-                </label>
-              </div>
-              <div className="col-span-2 pt-4 flex justify-end space-x-4">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-6 py-2 border rounded-lg hover:bg-gray-50 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-iskcon-orange text-white rounded-lg hover:bg-iskcon-orange/90 shadow-lg transition"
-                >
-                  {editingItem ? 'Save Changes' : 'Add Item'}
-                </button>
-              </div>
-            </form>
-          </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Description</label>
+              <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full px-4 py-2 border rounded-lg h-32 outline-none focus:ring-2 focus:ring-amber-500" />
+            </div>
+            <div className="flex items-center gap-2 mt-4">
+              <input type="checkbox" id="active" name="active" checked={formData.active} onChange={handleInputChange} className="w-4 h-4 text-amber-500 rounded" />
+              <label htmlFor="active" className="text-sm font-medium text-gray-700">Available (Active)</label>
+            </div>
+            <div className="flex gap-4">
+              <button type="submit" className="bg-amber-500 text-white px-6 py-2 rounded-lg font-bold">
+                {isEditing ? 'Update Item' : 'Create Item'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {activeTab === 'items' && (
+        <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100">
+                <th className="p-4 font-semibold text-gray-600">Item</th>
+                <th className="p-4 font-semibold text-gray-600">Price</th>
+                <th className="p-4 font-semibold text-gray-600 text-center">Status</th>
+                <th className="p-4 text-right font-semibold text-gray-600">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item) => (
+                <tr key={item._id} className="border-b border-gray-50 hover:bg-gray-50">
+                  <td className="p-4 font-medium text-gray-800">{item.name}</td>
+                  <td className="p-4 text-gray-600">₹{item.price}</td>
+                  <td className="p-4 text-center">
+                    <span className={`px-2 py-1 rounded-full text-xs font-bold ${item.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      {item.active ? 'Available' : 'Unavailable'}
+                    </span>
+                  </td>
+                  <td className="p-4 text-right">
+                    <button onClick={() => editItem(item)} className="text-blue-500 hover:text-blue-700 p-2 mr-2 bg-blue-50 rounded"><FaEdit /></button>
+                    <button onClick={() => deleteItem(item._id)} className="text-red-500 hover:text-red-700 p-2 bg-red-50 rounded"><FaTrash /></button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {activeTab === 'bookings' && (
+        <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100">
+                <th className="p-4 font-semibold text-gray-600">Customer</th>
+                <th className="p-4 font-semibold text-gray-600">Order Details</th>
+                <th className="p-4 font-semibold text-gray-600">Total</th>
+                <th className="p-4 font-semibold text-gray-600 text-center">Status</th>
+                <th className="p-4 font-semibold text-gray-600 text-right">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bookings.map((booking) => (
+                <tr key={booking._id} className="border-b border-gray-50">
+                  <td className="p-4 text-gray-800">
+                    <div className="font-medium">{booking.name}</div>
+                    <div className="text-sm text-gray-500">{booking.phone}</div>
+                    {booking.deliveryAddress && <div className="text-xs text-gray-400 max-w-[150px] truncate">{booking.deliveryAddress}</div>}
+                  </td>
+                  <td className="p-4 text-gray-600 text-sm">
+                    {booking.items.map((i: any, idx: number) => (
+                      <div key={idx}>{i.quantity}x {i.prasadamItemId?.name || 'Unknown Item'}</div>
+                    ))}
+                  </td>
+                  <td className="p-4 font-bold text-gray-800">
+                    ₹{booking.totalAmount}
+                  </td>
+                  <td className="p-4 text-center">
+                    <select 
+                      value={booking.status} 
+                      onChange={(e) => updateBookingStatus(booking._id, e.target.value)}
+                      className="bg-gray-50 border border-gray-200 text-sm rounded-lg outline-none focus:ring-2 focus:ring-amber-500 p-1"
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="Confirmed">Confirmed</option>
+                      <option value="Delivered">Delivered</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </td>
+                  <td className="p-4 text-gray-500 text-sm text-right">
+                    {new Date(booking.createdAt).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

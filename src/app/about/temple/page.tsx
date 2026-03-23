@@ -1,126 +1,90 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FaMapMarkerAlt, FaClock, FaCalendarAlt, FaHandsHelping } from 'react-icons/fa';
 
 export default function TemplePage() {
     return (
-        <main className="min-h-screen bg-gray-50 pb-20">
+        <main className="min-h-screen pt-20">
             {/* Hero Section */}
-            <section className="relative pt-32 pb-32 overflow-hidden bg-gray-900 border-b-8 border-orange-500">
-                <div className="absolute inset-0 z-0">
-                    <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-orange-900/60 to-black/80 mix-blend-multiply" />
-                    <img src="/images/history-of-iskcon.jpg" alt="Temple" className="w-full h-full object-cover opacity-30 grayscale blur-sm" />
-                </div>
-                <div className="container mx-auto px-4 relative z-10 text-center flex flex-col items-center">
-                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto">
-                        <span className="inline-block py-1.5 px-4 rounded-full bg-orange-500/20 text-orange-400 font-bold mb-6 tracking-wider uppercase text-sm border border-orange-500/30">Our Sacred Space</span>
-                        <h1 className="text-5xl md:text-7xl font-black text-white mb-6 drop-shadow-2xl tracking-tighter">
-                            Temple <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">Info</span>
-                        </h1>
-                        <p className="text-xl md:text-2xl text-gray-300 font-light max-w-3xl mx-auto">
+            <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
+                <div className="absolute inset-0 z-0 bg-gradient-to-r from-iskcon-blue/20 to-iskcon-orange/20"></div>
+                <div className="container mx-auto px-4 relative z-10">
+                    <div className="max-w-4xl mx-auto text-center">
+                        <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800">Temple Info</h1>
+                        <p className="text-xl text-gray-600 mb-8">
                             A spiritual oasis in the heart of Durgapur
                         </p>
-                    </motion.div>
+                    </div>
                 </div>
             </section>
 
-            <div className="container mx-auto px-4 -mt-16 relative z-20">
-                {/* Intro Card */}
-                <div className="bg-white rounded-[2.5rem] p-10 md:p-16 shadow-2xl max-w-5xl mx-auto border border-gray-100 mb-24 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-orange-400 via-orange-500 to-amber-500" />
-                    <div className="flex flex-col md:flex-row gap-12 items-center">
-                        <div className="flex-1">
-                            <div className="w-16 h-1 bg-orange-500 mb-6" />
-                            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-6 leading-tight tracking-tight">
-                                Welcome to<br />ISKCON Durgapur
-                            </h2>
-                            <p className="text-gray-600 mb-8 text-lg leading-relaxed">
-                                Established to propagate the timeless science of Krishna Consciousness, ISKCON Durgapur is more than just a temple; it is a vibrant community center offering spiritual education, culture, and service opportunities.
-                            </p>
-                            <div className="flex items-start mb-5">
-                                <div className="w-10 h-10 shrink-0 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500 mr-4 shadow-inner">
-                                    <FaMapMarkerAlt className="text-lg" />
+            {/* Temple Overview */}
+            <section className="py-16 bg-white">
+                <div className="container mx-auto px-4">
+                    <div className="max-w-4xl mx-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                            <div>
+                                <h2 className="text-3xl font-bold mb-6 text-gray-800">Welcome to ISKCON Durgapur</h2>
+                                <p className="text-lg text-gray-600 mb-6">
+                                    Established to propagate the timeless science of Krishna Consciousness, ISKCON Durgapur is more than just a temple; it is a vibrant community center offering spiritual education, culture, and service opportunities.
+                                </p>
+                                <div className="flex items-start mb-4">
+                                    <FaMapMarkerAlt className="text-iskcon-orange mt-1 mr-3 text-xl" />
+                                    <div>
+                                        <h3 className="font-bold text-gray-800">Location</h3>
+                                        <p className="text-gray-600">Nachan Road, Benachity, Durgapur, West Bengal, India</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className="font-black text-gray-900 uppercase tracking-tight text-sm mb-1">Location</h3>
-                                    <p className="text-gray-600">Nachan Road, Benachity, Durgapur, West Bengal, India</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start">
-                                <div className="w-10 h-10 shrink-0 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500 mr-4 shadow-inner">
-                                    <FaClock className="text-lg" />
-                                </div>
-                                <div>
-                                    <h3 className="font-black text-gray-900 uppercase tracking-tight text-sm mb-1">Darshan Timings</h3>
-                                    <p className="text-gray-600">Morning: 4:30 AM – 1:00 PM</p>
-                                    <p className="text-gray-600">Evening: 4:00 PM – 8:30 PM</p>
+                                <div className="flex items-start">
+                                    <FaClock className="text-iskcon-orange mt-1 mr-3 text-xl" />
+                                    <div>
+                                        <h3 className="font-bold text-gray-800">Darshan Timings</h3>
+                                        <p className="text-gray-600">Morning: 4:30 AM – 1:00 PM</p>
+                                        <p className="text-gray-600">Evening: 4:00 PM – 8:30 PM</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div className="w-full md:w-2/5 bg-orange-50 rounded-3xl overflow-hidden border border-orange-100 shadow-lg shrink-0 h-72 flex items-center justify-center">
-                            <img
-                                src="/images/history-of-iskcon.jpg"
-                                alt="ISKCON Durgapur Temple"
-                                className="w-full h-full object-cover opacity-80"
-                                onError={(e) => {
-                                    (e.target as HTMLImageElement).style.display = 'none';
-                                }}
-                            />
+                            <div className="relative h-[400px] rounded-lg overflow-hidden shadow-xl">
+                                <Image
+                                    src="/images/krishna-temple.jpg"
+                                    alt="ISKCON Durgapur Temple"
+                                    fill
+                                    className="object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-pink-500/20"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </section>
 
-                {/* Facilities */}
-                <div className="max-w-6xl mx-auto bg-gray-900 rounded-[3rem] p-10 md:p-20 text-white overflow-hidden relative shadow-2xl">
-                    <div className="absolute -top-24 -right-24 w-96 h-96 bg-orange-500/20 blur-[100px] rounded-full" />
-                    <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-orange-600/10 blur-[100px] rounded-full" />
-
-                    <div className="relative z-10 text-center mb-16">
-                        <span className="text-orange-500 font-black uppercase tracking-[0.3em] text-sm mb-4 block">What We Offer</span>
-                        <h2 className="text-4xl font-black mb-4">Temple Facilities</h2>
-                        <div className="w-16 h-1 bg-orange-500 mx-auto rounded-full" />
-                    </div>
-
-                    <div className="grid md:grid-cols-3 gap-8 relative z-10">
-                        {[
-                            {
-                                icon: <FaCalendarAlt />,
-                                title: 'Temple Hall',
-                                desc: 'A spacious prayer hall for kirtans, lectures, and finding inner peace.'
-                            },
-                            {
-                                icon: <FaHandsHelping />,
-                                title: 'Guest House',
-                                desc: 'Clean and comfortable accommodation for visiting devotees and life members.'
-                            },
-                            {
-                                icon: <FaCalendarAlt />,
-                                title: "Govinda's Restaurant",
-                                desc: 'Pure vegetarian sattvic meals offered to the Lord and distributed as prasadam.'
-                            }
-                        ].map((facility, i) => (
-                            <motion.div
-                                key={i}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.1, duration: 0.5 }}
-                                viewport={{ once: true }}
-                                className="bg-white/10 backdrop-blur-md p-8 rounded-3xl border border-white/10 hover:-translate-y-2 transition-transform duration-300 group"
-                            >
-                                <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center text-2xl text-white mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                                    {facility.icon}
-                                </div>
-                                <h3 className="font-black text-xl text-white mb-3 tracking-tight">{facility.title}</h3>
-                                <p className="text-gray-300 leading-relaxed">{facility.desc}</p>
-                                <div className="mt-5 w-10 h-0.5 bg-orange-500/40 group-hover:w-full group-hover:bg-orange-500 transition-all duration-500 rounded-full" />
-                            </motion.div>
-                        ))}
+            {/* Facilities */}
+            <section className="py-16 bg-amber-50">
+                <div className="container mx-auto px-4">
+                    <h2 className="text-3xl font-bold mb-12 text-center text-gray-800">Temple Facilities</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+                            <FaCalendarAlt className="text-4xl text-iskcon-orange mb-4" />
+                            <h3 className="text-xl font-bold mb-2">Temple Hall</h3>
+                            <p className="text-gray-600">A spacious prayer hall for kirtans, lectures, and finding inner peace.</p>
+                        </div>
+                        <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+                            <FaHandsHelping className="text-4xl text-iskcon-orange mb-4" />
+                            <h3 className="text-xl font-bold mb-2">Guest House</h3>
+                            <p className="text-gray-600">Clean and comfortable accommodation for visiting devotees and life members.</p>
+                        </div>
+                        <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+                            <FaCalendarAlt className="text-4xl text-iskcon-orange mb-4" />
+                            <h3 className="text-xl font-bold mb-2">Govinda's Restaurant</h3>
+                            <p className="text-gray-600">Pure vegetarian sattvic meals offered to the Lord and distributed as prasadam.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
         </main>
     );
 }

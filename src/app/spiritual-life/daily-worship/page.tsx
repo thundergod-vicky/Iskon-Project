@@ -2,222 +2,277 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
-import { FaPrayingHands, FaBell, FaSpa, FaHandHolding, FaHeart, FaOm, FaBook, FaVideo, FaUsers } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaPrayingHands, FaCheckCircle, FaTimes, FaWhatsapp, FaCreditCard } from 'react-icons/fa';
 
-const worshipSteps = [
-	{
-		id: 1,
-		title: 'Morning Worship',
-		time: '4:30 AM - 5:00 AM',
-		rituals: [
-			{
-				name: 'Mangala Arati',
-				description: 'Early morning worship of the Deities with various offerings',
-				items: ['Incense', 'Ghee lamp', 'Flowers', 'Water', 'Fan', 'Cloth'],
-				instructions: [
-					'Begin with purification mantras',
-					'Light the ghee lamp and incense',
-					'Offer flowers with devotion',
-					'Wave the lamp in circular motion',
-					'Fan the Deities with respect',
-				],
-			},
-		],
-	},
-	{
-		id: 2,
-		title: 'Deity Greeting',
-		time: '7:00 AM - 7:30 AM',
-		rituals: [
-			{
-				name: 'Darshan Arati',
-				description: 'Morning greeting of the Deities with fresh offerings',
-				items: ['Fresh flowers', 'Fresh fruits', 'Bhoga', 'Water'],
-				instructions: [
-					'Offer fresh morning prayers',
-					'Present new flowers and garlands',
-					'Offer fresh breakfast bhoga',
-					'Sing morning prayers and kirtans',
-				],
-			},
-		],
-	},
-	{
-		id: 3,
-		title: 'Evening Worship',
-		time: '6:30 PM - 7:00 PM',
-		rituals: [
-			{
-				name: 'Sandhya Arati',
-				description: 'Evening offering of lamps and prayers',
-				items: ['Incense', 'Ghee lamp', 'Fresh flowers', 'Chamar'],
-				instructions: [
-					'Light the evening lamps',
-					'Offer evening prayers',
-					'Wave the arati lamp',
-					'Sing evening bhajans',
-				],
-			},
-		],
-	},
+const pujasList = [
+  {
+    id: 1,
+    name: 'Mangal Aarti Puja',
+    price: 501,
+    description: 'Special early morning blessings during Mangal Aarti. Receive divine grace to start your endeavors.',
+    image: '/images/temple-altar.jpg'
+  },
+  {
+    id: 2,
+    name: 'Tulasi Aarti Support',
+    price: 1001,
+    description: 'Sponsor the daily Tulasi Aarti and receive special prayers for your family’s spiritual well-being.',
+    image: '/images/history-of-iskcon.jpg'
+  },
+  {
+    id: 3,
+    name: 'Narasimha Kavacha Puja',
+    price: 2001,
+    description: 'Powerful protection prayers offered to Lord Narasimhadeva for overcoming obstacles in life.',
+    image: '/images/krishna-temple.jpg'
+  },
+  {
+    id: 4,
+    name: 'Special Festival Sankalpa',
+    price: 5001,
+    description: 'Exclusive prayers during major festivals like Janmashtami or Gaura Purnima for overall prosperity.',
+    image: '/images/events/janmashtami-celebration.jpg'
+  }
 ];
 
-export default function DailyWorshipPage() {
-	const [selectedStep, setSelectedStep] = useState(0);
+export default function OnlinePujaBookingPage() {
+  const [selectedPuja, setSelectedPuja] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: '',
+    gotra: '',
+    purpose: '',
+    whatsapp: ''
+  });
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
-	return (
-		<div className="min-h-screen bg-gray-50">
-			{/* Hero Section */}
-			<section className="relative h-[40vh] flex items-center justify-center">
-				<div className="absolute inset-0">
-					<Image
-						src="/images/temple-altar.jpg"
-						alt="Temple Altar"
-						fill
-						className="object-cover brightness-50"
-						priority
-					/>
-				</div>
-				<div className="relative z-10 text-center text-white px-4">
-					<h1 className="text-4xl md:text-5xl font-bold mb-4">Daily Worship</h1>
-					<p className="text-xl max-w-2xl mx-auto">
-						Learn the art of Deity worship and daily spiritual practices
-					</p>
-				</div>
-			</section>
+  // Note: Replace this with the actual payment gateway link provided by ISKCON Durgapur
+  const PAYMENT_LINK = "https://razorpay.me/@iskcondurgapur"; 
 
-			{/* Main Content */}
-			<section className="container mx-auto px-4 py-16">
-				<div className="max-w-4xl mx-auto">
-					{/* Steps Navigation */}
-					<div className="flex flex-wrap justify-center gap-4 mb-12">
-						{worshipSteps.map((step, index) => (
-							<button
-								key={step.id}
-								onClick={() => setSelectedStep(index)}
-								className={`px-6 py-3 rounded-lg transition-all ${selectedStep === index
-									? 'bg-iskcon-orange text-white'
-									: 'bg-white text-gray-700 hover:bg-gray-100'
-									}`}
-							>
-								{step.title}
-							</button>
-						))}
-					</div>
+  const handleBookNow = (puja: any) => {
+    setSelectedPuja(puja);
+    setIsModalOpen(true);
+    setIsSubmitted(false);
+  };
 
-					{/* Selected Step Content */}
-					<motion.div
-						key={selectedStep}
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.5 }}
-						className="bg-white rounded-lg shadow-lg p-8"
-					>
-						<div className="flex items-center justify-between mb-6">
-							<h2 className="text-2xl font-bold text-gray-800">
-								{worshipSteps[selectedStep].title}
-							</h2>
-							<span className="text-iskcon-orange font-medium">
-								{worshipSteps[selectedStep].time}
-							</span>
-						</div>
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-						{worshipSteps[selectedStep].rituals.map((ritual, index) => (
-							<div key={index} className="space-y-6">
-								<h3 className="text-xl font-semibold text-iskcon-orange">
-									{ritual.name}
-								</h3>
-								<p className="text-gray-600">{ritual.description}</p>
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real app, here we would save the booking details to the database before redirecting
+    // For now, we simulate success and show payment details
+    setIsSubmitted(true);
+  };
 
-								{/* Required Items */}
-								<div className="bg-gray-50 p-6 rounded-lg">
-									<h4 className="font-semibold mb-4 flex items-center">
-										<FaHandHolding className="text-iskcon-orange mr-2" />
-										Required Items
-									</h4>
-									<div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-										{ritual.items.map((item, i) => (
-											<div key={i} className="flex items-center">
-												<FaOm className="text-iskcon-orange mr-2" />
-												<span>{item}</span>
-											</div>
-										))}
-									</div>
-								</div>
+  const proceedToPayment = () => {
+    // Open payment link in a new tab
+    window.open(PAYMENT_LINK, '_blank');
+  };
 
-								{/* Instructions */}
-								<div className="bg-gray-50 p-6 rounded-lg">
-									<h4 className="font-semibold mb-4 flex items-center">
-										<FaPrayingHands className="text-iskcon-orange mr-2" />
-										Step-by-Step Instructions
-									</h4>
-									<ol className="space-y-3">
-										{ritual.instructions.map((instruction, i) => (
-											<li key={i} className="flex items-start">
-												<span className="bg-iskcon-orange text-white w-6 h-6 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-													{i + 1}
-												</span>
-												<span>{instruction}</span>
-											</li>
-										))}
-									</ol>
-								</div>
-							</div>
-						))}
-					</motion.div>
-				</div>
-			</section>
+  return (
+    <div className="min-h-screen bg-gray-50 pt-20">
+      {/* Hero Section */}
+      <section className="relative h-[40vh] flex items-center justify-center bg-iskcon-orange">
+        <div className="absolute inset-0">
+          <Image
+            src="/images/temple-altar.jpg"
+            alt="Temple Altar"
+            fill
+            className="object-cover brightness-50"
+            priority
+          />
+        </div>
+        <div className="relative z-10 text-center text-white px-4">
+          <FaPrayingHands className="text-6xl mx-auto mb-4 text-orange-200" />
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Book Online Puja</h1>
+          <p className="text-xl max-w-2xl mx-auto opacity-90">
+            Seek divine blessings from anywhere. We will perform the puja on your behalf and send you the video on WhatsApp.
+          </p>
+        </div>
+      </section>
 
-			{/* Additional Resources */}
-			<section className="bg-white py-16">
-				<div className="container mx-auto px-4">
-					<h2 className="text-3xl font-bold text-center mb-12">
-						Additional Resources
-					</h2>
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-						<div className="text-center p-6">
-							<FaBook className="text-4xl text-iskcon-orange mx-auto mb-4" />
-							<h3 className="text-xl font-bold mb-2">Temple Worship Guide</h3>
-							<p className="text-gray-600">
-								Download our comprehensive guide to temple worship
-							</p>
-							<a
-								href="#"
-								className="text-iskcon-orange hover:underline mt-2 inline-block"
-							>
-								Learn More
-							</a>
-						</div>
-						<div className="text-center p-6">
-							<FaVideo className="text-4xl text-iskcon-orange mx-auto mb-4" />
-							<h3 className="text-xl font-bold mb-2">Video Tutorials</h3>
-							<p className="text-gray-600">
-								Watch detailed tutorials on proper worship procedures
-							</p>
-							<a
-								href="#"
-								className="text-iskcon-orange hover:underline mt-2 inline-block"
-							>
-								Watch Now
-							</a>
-						</div>
-						<div className="text-center p-6">
-							<FaUsers className="text-4xl text-iskcon-orange mx-auto mb-4" />
-							<h3 className="text-xl font-bold mb-2">One-on-One Training</h3>
-							<p className="text-gray-600">
-								Schedule personal training with experienced devotees
-							</p>
-							<a
-								href="#"
-								className="text-iskcon-orange hover:underline mt-2 inline-block"
-							>
-								Schedule
-							</a>
-						</div>
-					</div>
-				</div>
-			</section>
-		</div>
-	);
+      {/* Puja List Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">Available Pujas</h2>
+            <p className="text-gray-600">Select a puja below to proceed with the booking and payment.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {pujasList.map((puja) => (
+              <motion.div
+                key={puja.id}
+                whileHover={{ y: -5 }}
+                className="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 flex flex-col"
+              >
+                <div className="relative h-48 w-full bg-orange-100">
+                  <Image 
+                    src={puja.image} 
+                    alt={puja.name} 
+                    fill 
+                    className="object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/images/iskcon-logo.png';
+                    }}
+                  />
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-1 rounded-full font-bold text-iskcon-orange shadow-sm">
+                    ₹{puja.price}
+                  </div>
+                </div>
+                <div className="p-6 flex-1 flex flex-col">
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">{puja.name}</h3>
+                  <p className="text-gray-600 text-sm mb-6 flex-1">{puja.description}</p>
+                  <button
+                    onClick={() => handleBookNow(puja)}
+                    className="w-full bg-iskcon-orange text-white py-3 rounded-xl font-bold hover:bg-orange-600 transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                  >
+                    <FaPrayingHands /> Book Now
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Booking Modal */}
+      <AnimatePresence>
+        {isModalOpen && selectedPuja && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-8 overflow-y-auto"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl overflow-hidden relative"
+            >
+              {/* Modal Header */}
+              <div className="bg-orange-50 p-6 flex items-center justify-between border-b border-orange-100">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">Booking: {selectedPuja.name}</h2>
+                  <p className="text-iskcon-orange font-medium">Dakshina: ₹{selectedPuja.price}</p>
+                </div>
+                <button 
+                  onClick={() => setIsModalOpen(false)}
+                  className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 shadow-sm transition-colors"
+                >
+                  <FaTimes />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-8">
+                {!isSubmitted ? (
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="bg-blue-50 text-blue-800 p-4 rounded-xl text-sm mb-6 flex items-start gap-3">
+                      <FaWhatsapp className="text-2xl shrink-0 text-green-500" />
+                      <div>
+                        <strong>Video Delivery:</strong> We will send a personalized video of your puja to your provided WhatsApp number.
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-gray-700">Full Name *</label>
+                        <input 
+                          type="text" 
+                          name="fullName"
+                          required
+                          value={formData.fullName}
+                          onChange={handleChange}
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-iskcon-orange outline-none" 
+                          placeholder="Devotee Name" 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-gray-700">Gotra (Optional)</label>
+                        <input 
+                          type="text" 
+                          name="gotra"
+                          value={formData.gotra}
+                          onChange={handleChange}
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-iskcon-orange outline-none" 
+                          placeholder="e.g. Kashyapa" 
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">Sankalpa / Purpose *</label>
+                      <textarea 
+                        name="purpose"
+                        required
+                        value={formData.purpose}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-iskcon-orange outline-none h-24 resize-none" 
+                        placeholder="Please mention your prayer request..." 
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">WhatsApp Number *</label>
+                      <input 
+                        type="tel" 
+                        name="whatsapp"
+                        required
+                        value={formData.whatsapp}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-iskcon-orange outline-none" 
+                        placeholder="+91 98765 43210" 
+                      />
+                    </div>
+
+                    <div className="pt-4 flex justify-end gap-4">
+                      <button 
+                        type="button" 
+                        onClick={() => setIsModalOpen(false)}
+                        className="px-6 py-3 font-bold text-gray-500 hover:bg-gray-100 rounded-xl transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        type="submit" 
+                        className="px-8 py-3 bg-iskcon-orange text-white font-bold rounded-xl shadow-md hover:bg-orange-600 transition-colors"
+                      >
+                        Save Details & Proceed to Pay
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
+                      <FaCheckCircle />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-2">Details Saved!</h3>
+                    <p className="text-gray-600 mb-8 max-w-sm mx-auto">
+                      Your details have been recorded. Please complete the payment of <strong>₹{selectedPuja.price}</strong> to confirm your booking.
+                    </p>
+                    <div className="space-y-4 max-w-sm mx-auto">
+                      <button 
+                        onClick={proceedToPayment}
+                        className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-lg"
+                      >
+                        <FaCreditCard /> Pay ₹{selectedPuja.price} Online
+                      </button>
+                      <p className="text-xs text-gray-400">
+                        After payment, please screenshot the receipt to our WhatsApp support if needed.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }

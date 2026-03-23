@@ -4,8 +4,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaShoppingCart, FaFilter, FaSearch, FaHeart } from 'react-icons/fa';
-import { useCart } from '@/context/CartContext';
+import { FaFilter, FaSearch, FaHeart, FaStore } from 'react-icons/fa';
 
 // Sample product data - in a real app, this would come from an API or database
 const products = [
@@ -89,7 +88,6 @@ const categories = [
 const StorePage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All Items");
   const [searchQuery, setSearchQuery] = useState("");
-  const { addItem, toggleCart, cartCount } = useCart();
 
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === "All Items" || product.category === selectedCategory;
@@ -97,10 +95,6 @@ const StorePage = () => {
       product.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
-
-  const addToCart = (product: any) => {
-    addItem(product);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -123,6 +117,14 @@ const StorePage = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8 rounded-r-lg flex items-start gap-3">
+          <FaStore className="text-yellow-500 text-xl mt-0.5" />
+          <div>
+            <h3 className="text-yellow-800 font-bold">Visit our Temple Shop</h3>
+            <p className="text-yellow-700 text-sm">Our online store is currently a display catalog only. In order to buy any of these items, please visit the Temple Shop in person.</p>
+          </div>
+        </div>
+
         {/* Search and Filter Bar */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="flex-1 relative">
@@ -130,23 +132,23 @@ const StorePage = () => {
             <input
               type="text"
               placeholder="Search products..."
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-sm"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <div className="flex gap-4">
             <div className="relative group">
-              <button className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border border-gray-200 hover:bg-gray-50">
-                <FaFilter className="text-gray-500" />
-                <span>Filter</span>
+              <button className="flex items-center gap-2 px-6 py-3 bg-white rounded-xl border border-gray-200 hover:bg-gray-50 shadow-sm font-medium">
+                <FaFilter className="text-purple-600" />
+                <span>Filter Category</span>
               </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 border border-gray-100 overflow-hidden">
                 {categories.map((category) => (
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`block w-full text-left px-4 py-2 hover:bg-purple-50 ${selectedCategory === category ? 'bg-purple-50 text-purple-700' : 'text-gray-700'
+                    className={`block w-full text-left px-4 py-3 hover:bg-purple-50 transition-colors ${selectedCategory === category ? 'bg-purple-50 text-purple-700 font-bold' : 'text-gray-700'
                       }`}
                   >
                     {category}
@@ -154,18 +156,6 @@ const StorePage = () => {
                 ))}
               </div>
             </div>
-            <button 
-              onClick={toggleCart}
-              className="relative flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-            >
-              <FaShoppingCart />
-              <span>Cart</span>
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </button>
           </div>
         </div>
 
@@ -218,16 +208,6 @@ const StorePage = () => {
                     </div>
                     <span className="text-sm text-gray-500 ml-1">({product.reviews})</span>
                   </div>
-                  <button
-                    onClick={() => addToCart(product)}
-                    disabled={!product.inStock}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium ${product.inStock
-                      ? 'bg-purple-600 text-white hover:bg-purple-700'
-                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      }`}
-                  >
-                    {product.inStock ? 'Add to Cart' : 'Out of Stock'}
-                  </button>
                 </div>
               </div>
             </motion.div>

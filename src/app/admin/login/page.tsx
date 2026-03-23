@@ -35,7 +35,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex pt-24 md:pt-32">
       {/* Left Panel — decorative */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-orange-600 via-amber-500 to-orange-700 flex-col items-center justify-center p-12 overflow-hidden">
         {/* Radial glow */}

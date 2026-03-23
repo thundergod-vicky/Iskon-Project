@@ -68,14 +68,29 @@ export default function VolunteerPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-        setTimeout(() => {
+        try {
+            const res = await fetch('/api/volunteers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            if (res.ok) {
+                setSubmitted(true);
+                setFormData({ name: '', email: '', phone: '', areaOfInterest: 'Temple Maintenance (Seva)', availability: '' });
+                setTimeout(() => setSubmitted(false), 5000);
+            } else {
+                alert('Failed to submit. Please try again later.');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('A network error occurred.');
+        } finally {
+            setIsSubmitting(true); // Keeping the button state as requested or resetting it
             setIsSubmitting(false);
-            setSubmitted(true);
-            setTimeout(() => setSubmitted(false), 5000);
-        }, 1500);
+        }
     };
 
     return (

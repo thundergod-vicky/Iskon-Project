@@ -64,6 +64,8 @@ export async function POST(request: Request) {
     if (!isAuthenticated) {
       const superAdminUsername = process.env.ADMIN_USERNAME || 'admin';
       const superAdminPassword = process.env.ADMIN_PASSWORD || 'iskcon123';
+      const prasadAdminUsername = process.env.PRASAD_ADMIN_USERNAME || 'prasad_admin';
+      const prasadAdminPassword = process.env.PRASAD_ADMIN_PASSWORD || 'prasadam123';
       
       if (username === superAdminUsername && password === superAdminPassword) {
         isAuthenticated = true;
@@ -71,6 +73,13 @@ export async function POST(request: Request) {
           id: 'super-admin-env',
           username: superAdminUsername,
           role: 'admin'
+        };
+      } else if (username === prasadAdminUsername && password === prasadAdminPassword) {
+        isAuthenticated = true;
+        authUser = {
+          id: 'prasad-admin-env',
+          username: prasadAdminUsername,
+          role: 'prasad_admin'
         };
       }
     }

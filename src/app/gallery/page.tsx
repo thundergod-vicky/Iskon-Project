@@ -119,14 +119,30 @@ const ImageSkeleton = () => (
 
 export default function PhotoGallery() {
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [allImages, setAllImages] = useState(images);
   const [filteredImages, setFilteredImages] = useState(images);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    fetch('/api/gallery')
+      .then(res => res.json())
+      .then(data => {
+        const combined = [...data, ...images];
+        setAllImages(combined);
+        setFilteredImages(combined);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
     // Filter images based on selected category
     const filtered = selectedCategory === 'All'
-      ? images
-      : images.filter(img => img.category === selectedCategory);
+      ? allImages
+      : allImages.filter((img: any) => img.category === selectedCategory);
     
     setLoading(true);
     // Simulate loading for smoother transitions
@@ -134,7 +150,7 @@ export default function PhotoGallery() {
       setFilteredImages(filtered);
       setLoading(false);
     }, 300);
-  }, [selectedCategory]);
+  }, [selectedCategory, allImages]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-100 to-rose-100 pt-20">
